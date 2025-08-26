@@ -9,14 +9,8 @@ let aspectKeys = [];
 let tasksData = [];
 let lawsData = [];
 let mindsetData = [];
-let currentIndex = 0;
-let stage = 0; // 0 matters, 1 level
 let responses = JSON.parse(localStorage.getItem('responses') || '{}');
 let previousLogin = 0;
-let pendingReturnPage = null;
-let suppressVoting = false;
-let introDone = localStorage.getItem('introDone') === 'true';
-let levelDone = localStorage.getItem('levelDone') === 'true';
 
 const introMattersMessages = [
   'Este é o iLife Prime\nEstamos preparando tudo pra você',
@@ -172,9 +166,6 @@ document.addEventListener('keydown', e => {
   }
 });
 
-const slider = document.getElementById('slider');
-const sliderFeedback = document.getElementById('slider-feedback');
-const aspectImage = document.getElementById('aspect-image');
 const headerLogo = document.getElementById('header-logo');
 const menuCarousel = document.getElementById('menu-carousel');
 
@@ -247,205 +238,22 @@ Promise.all([
   lawsData = leis;
   mindsetData = mindset;
   aspectKeys = Object.keys(aspects);
-  if (introDone || Object.keys(responses).length) {
-    document.getElementById('logo-screen').style.display = 'none';
-    document.getElementById('main-header').classList.remove('hidden');
-    document.getElementById('main-content').classList.remove('hidden');
-    initApp(false);
-  } else {
+  setTimeout(() => {
+    const logoScreen = document.getElementById('logo-screen');
+    logoScreen.classList.add('fade-out');
     setTimeout(() => {
-      const text = document.getElementById('logo-text');
-      text.classList.remove('hidden');
-      requestAnimationFrame(() => text.classList.add('show'));
-    }, 2500);
-    setTimeout(() => {
-      const logoScreen = document.getElementById('logo-screen');
-      logoScreen.classList.add('fade-out');
-      setTimeout(() => {
-        logoScreen.style.display = 'none';
-        playIntro(introMattersMessages, 'intro-matters', () => {
-          document.getElementById('question-screen').classList.remove('hidden');
-          showQuestion();
-        }, true);
-      }, 1000);
-    }, 4000);
-  }
+      logoScreen.style.display = 'none';
+      initApp();
+    }, 1000);
+  }, 3000);
 });
 
-function playIntro(messages, screenId, callback, requireSwipe = false) {
-  const screen = document.getElementById(screenId);
-  const textEl = screen.querySelector('p');
-  screen.classList.remove('hidden');
-  let idx = 0;
-  function showNext() {
-    if (idx >= messages.length) {
-      if (!requireSwipe) {
-        screen.classList.add('hidden');
-        callback();
-      }
-      return;
-    }
-    textEl.innerHTML = messages[idx].replace(/\n/g, '<br>');
-    textEl.classList.add('show');
-    if (requireSwipe && idx === messages.length - 1) {
-      let startY = 0;
-      screen.addEventListener('touchstart', e => startY = e.touches[0].clientY, { once: true });
-      screen.addEventListener('touchend', e => {
-        const dy = e.changedTouches[0].clientY - startY;
-        if (dy < -50) {
-          textEl.classList.remove('show');
-          setTimeout(() => { screen.classList.add('hidden'); callback(); }, 500);
-        } else if (dy > 50) {
-          location.reload();
-        } else {
-          showNext();
-        }
-      }, { once: true });
-    } else {
-      setTimeout(() => {
-        textEl.classList.remove('show');
-        setTimeout(() => { idx++; showNext(); }, 500);
-      }, 2500);
-    }
-  }
-  showNext();
-}
 
-function showQuestion() {
-  const key = aspectKeys[currentIndex];
-  const title = stage === 0
-    ? importanceQuestions[key]
-    : `Qual o nível atual do seu ${key.toLowerCase()}?`;
-  document.getElementById('question-title').textContent = title;
-  aspectImage.src = aspectsData[key].image;
-  aspectImage.alt = key;
-  const value = stage === 0
-    ? (responses[key]?.importance || 50)
-    : (responses[key]?.level || 50);
-  slider.value = value;
-  updateFeedback();
-  const totalSteps = aspectKeys.length * 2;
-  const stepIndex = stage === 0 ? currentIndex : aspectKeys.length + currentIndex;
-  const progress = (stepIndex / totalSteps) * 100;
-  document.getElementById('progress-bar').style.width = progress + '%';
-}
-
-function getImportanceFeedback(val) {
-  const v = Number(val);
-  if (v <= 20) return 'Totalmente irrelevante';
-  if (v <= 40) return 'Pouco importante';
-  if (v <= 60) return 'Importância moderada';
-  if (v <= 80) return 'Importante';
-  return 'Muito importante';
-}
-
-function getLevelFeedback(val, key) {
-  const msgs = levelMessages[key];
-  if (!msgs) return '';
-  const idx = Math.min(4, Math.floor(Number(val) / 20));
-  return msgs[idx];
-}
-
-function updateFeedback() {
-  const key = aspectKeys[currentIndex];
-  sliderFeedback.textContent = stage === 0
-    ? getImportanceFeedback(slider.value)
-    : getLevelFeedback(slider.value, key);
-}
-
-slider.addEventListener('input', updateFeedback);
-
-document.getElementById('next-btn').addEventListener('click', () => {
-  const key = aspectKeys[currentIndex];
-  if (!responses[key]) responses[key] = { importance: 50, level: 50 };
-  if (stage === 0) {
-    responses[key].importance = Number(slider.value);
-    currentIndex++;
-    if (currentIndex < aspectKeys.length) {
-      showQuestion();
-    } else {
-      if (pendingReturnPage) {
-        localStorage.setItem('responses', JSON.stringify(responses));
-        document.getElementById('question-screen').classList.add('hidden');
-        document.getElementById('main-header').classList.remove('hidden');
-        document.getElementById('main-content').classList.remove('hidden');
-        suppressVoting = true;
-        showPage(pendingReturnPage);
-        suppressVoting = false;
-        pendingReturnPage = null;
-      } else {
-        currentIndex = 0;
-        stage = 1;
-        document.getElementById('question-screen').classList.add('hidden');
-        playIntro(levelIntroMessages, 'intro-level', () => {
-          document.getElementById('question-screen').classList.remove('hidden');
-          showQuestion();
-        });
-      }
-    }
-  } else {
-    responses[key].level = Number(slider.value);
-    currentIndex++;
-    if (currentIndex < aspectKeys.length) {
-      showQuestion();
-    } else {
-      localStorage.setItem('responses', JSON.stringify(responses));
-      localStorage.setItem('levelDone', 'true');
-      levelDone = true;
-      document.getElementById('question-screen').classList.add('hidden');
-      if (pendingReturnPage) {
-        document.getElementById('main-header').classList.remove('hidden');
-        document.getElementById('main-content').classList.remove('hidden');
-        initStats(aspectKeys, responses, statsColors, aspectsData);
-        suppressVoting = true;
-        showPage(pendingReturnPage);
-        suppressVoting = false;
-        pendingReturnPage = null;
-      } else {
-        document.getElementById('oath-text').textContent = buildOath();
-        document.getElementById('name-screen').classList.remove('hidden');
-      }
-    }
-  }
-});
-
-document.getElementById('agree').addEventListener('change', checkStartReady);
-document.getElementById('username').addEventListener('input', checkStartReady);
-
-function checkStartReady() {
-  const agree = document.getElementById('agree').checked;
-  const name = document.getElementById('username').value.trim();
-  document.getElementById('start-btn').disabled = !(agree && name);
-}
-
-document.getElementById('start-btn').addEventListener('click', () => {
-      document.getElementById('name-screen').classList.add('hidden');
-      initApp(true);
-    });
-
-function buildOath() {
-  const parts = [];
-  for (const key of aspectKeys) {
-    const res = responses[key];
-    if (res.importance >= 7) {
-      parts.push(aspectsData[key].speech);
-    }
-  }
-  return parts.length ? 'Eu prometo ' + parts.join(' ') : '';
-}
-
-function initApp(firstTime) {
+function initApp() {
   const now = Date.now();
   previousLogin = Number(localStorage.getItem('lastLogin')) || now;
   localStorage.setItem('lastLogin', now);
-  if (firstTime) {
-    localStorage.setItem('responses', JSON.stringify(responses));
-    const name = document.getElementById('username').value.trim();
-    localStorage.setItem('username', name);
-    localStorage.setItem('introDone', 'true');
-  } else {
-    responses = JSON.parse(localStorage.getItem('responses') || '{}');
-  }
+  responses = JSON.parse(localStorage.getItem('responses') || '{}');
   buildOptions();
   initTasks(aspectKeys, tasksData, aspectsData);
   initLaws(aspectKeys, lawsData, statsColors);
@@ -617,29 +425,5 @@ function showPage(pageId) {
   document.querySelectorAll('.page').forEach(sec => sec.classList.remove('active'));
   const section = document.getElementById(pageId);
   if (section) section.classList.add('active');
-  if (!suppressVoting) {
-    if (pageId === 'laws') startMattersVoting();
-    if (pageId === 'stats' && !levelDone) startLevelVoting();
-  }
-}
-
-function startMattersVoting() {
-  pendingReturnPage = 'laws';
-  currentIndex = 0;
-  stage = 0;
-  document.getElementById('main-header').classList.add('hidden');
-  document.getElementById('main-content').classList.add('hidden');
-  document.getElementById('question-screen').classList.remove('hidden');
-  showQuestion();
-}
-
-function startLevelVoting() {
-  pendingReturnPage = 'stats';
-  currentIndex = 0;
-  stage = 1;
-  document.getElementById('main-header').classList.add('hidden');
-  document.getElementById('main-content').classList.add('hidden');
-  document.getElementById('question-screen').classList.remove('hidden');
-  showQuestion();
 }
 

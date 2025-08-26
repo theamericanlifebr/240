@@ -36,7 +36,7 @@ function buildStats() {
   circle.setAttribute('cx', '125');
   circle.setAttribute('cy', '125');
   circle.setAttribute('r', String(radius));
-  circle.setAttribute('stroke-width', '20');
+  circle.setAttribute('stroke-width', '15');
   circle.setAttribute('fill', 'none');
   circle.setAttribute('stroke-dasharray', String(circumference));
   svg.appendChild(circle);

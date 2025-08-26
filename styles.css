@@ -487,6 +487,7 @@ li:hover { transform: scale(1.02); }
     width: 336px;
     height: 336px;
     margin: 20px;
+    padding: 25px;
   }
 
 .stats-aspect-image {

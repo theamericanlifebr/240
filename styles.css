@@ -483,24 +483,33 @@ li:hover { transform: scale(1.02); }
 
 .stats-display {
   position: relative;
-  width: 250px;
-  height: 250px;
+  width: 280px;
+  height: 280px;
+  margin: 20px;
 }
 
 .stats-aspect-image {
-  width: 250px;
-  height: 250px;
+  width: 80%;
+  height: 80%;
   display: block;
+  margin: 10%;
 }
 
 .stats-circle {
   position: absolute;
   top: 0;
   left: 0;
-  width: 250px;
-  height: 250px;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
   transform: rotate(-90deg);
+}
+
+@media (min-width: 768px) {
+  .stats-display {
+    width: 312px;
+    height: 312px;
+  }
 }
 
 .stats-name {

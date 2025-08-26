@@ -40,6 +40,7 @@ function buildStats() {
   svg.setAttribute('width', '300');
   svg.setAttribute('height', '300');
   svg.setAttribute('viewBox', '0 0 300 300');
+  svg.setAttribute('overflow', 'visible');
   const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
   const radius = 135;
   const circumference = 2 * Math.PI * radius;

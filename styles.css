@@ -505,6 +505,7 @@ li:hover { transform: scale(1.02); }
   height: 100%;
   pointer-events: none;
   transform: rotate(-90deg);
+  overflow: visible;
 }
 
   @media (min-width: 768px) {

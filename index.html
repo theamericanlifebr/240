@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Presidencial</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="black">
+  <div id="logo-screen" class="center">
+    <img src="logo.png" alt="Logo" id="logo" />
+    <p id="logo-text" class="hidden">Construa a si mesmo</p>
+  </div>
+
+  <div id="intro-matters" class="hidden center intro-screen">
+    <p id="intro-matters-text"></p>
+  </div>
+
+  <div id="intro-level" class="hidden center intro-screen">
+    <p id="intro-level-text"></p>
+  </div>
+
+  <div id="question-screen" class="hidden center">
+    <h1 id="question-title"></h1>
+    <img id="aspect-image" class="aspect-image" alt="Aspecto" />
+    <div class="progress-container">
+      <div id="progress-bar"></div>
+    </div>
+    <div id="slider-feedback" class="slider-feedback"></div>
+    <div class="slider-container">
+      <input type="range" min="0" max="100" value="50" id="slider" />
+    </div>
+    <button id="next-btn">Próximo</button>
+  </div>
+
+  <div id="name-screen" class="hidden center">
+    <h1>Assuma a Presidência</h1>
+    <p id="oath-text"></p>
+    <input type="text" id="username" placeholder="Seu nome" />
+    <label class="agree"><input type="checkbox" id="agree" /> Concordo</label>
+    <button id="start-btn" disabled>Continuar</button>
+  </div>
+
+  <header id="main-header" class="hidden">
+    <div class="header-container">
+      <img src="logo.png" alt="Logo" class="header-logo" id="header-logo" />
+    </div>
+  </header>
+
+  <main id="main-content" class="hidden">
+    <div id="menu-carousel" class="menu-carousel"></div>
+    <section id="menu" class="page active">
+      <div class="menu-grid">
+        <div class="menu-item" data-page="tasks"><img src="acoes.png" alt="Tarefas" /></div>
+        <div class="menu-item" data-page="laws"><img src="leis.png" alt="Leis" /></div>
+        <div class="menu-item" data-page="stats"><img src="estatisticas.png" alt="Estatísticas" /></div>
+        <div class="menu-item" data-page="mindset"><img src="mindset.png" alt="Mindset" /></div>
+        <div class="menu-item" data-page="options"><img src="constituicao.png" alt="Opções" /></div>
+        <div class="menu-item" data-page="history"><img src="historico.png" alt="Histórico" /></div>
+      </div>
+    </section>
+    <section id="tasks" class="page">
+      <div id="tasks-tabs">
+        <div id="tasks-content">
+          <div id="tasks-hub">
+            <button id="add-task-btn">Nova tarefa</button>
+            <button id="suggest-task-btn">Ver ideias</button>
+          </div>
+          <div id="tasks-pending">
+            <h2>Tarefas agendadas</h2>
+            <div class="task-group" id="pending-list"></div>
+          </div>
+          <div id="tasks-completed">
+            <h2>Concluídas</h2>
+            <div class="task-group" id="completed-list"></div>
+          </div>
+          <div id="tasks-overdue">
+            <h2>Atrasadas</h2>
+            <div class="task-group" id="overdue-list"></div>
+          </div>
+          <div id="tasks-substituted">
+            <h2>Substituídas</h2>
+            <div class="task-group" id="substituted-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="laws" class="page">
+      <div id="laws-hub">
+        <button id="add-law-btn">Nova lei</button>
+        <button id="suggest-law-btn">Ver ideias</button>
+      </div>
+      <div id="laws-list"></div>
+    </section>
+    <section id="stats" class="page">
+      <div id="stats-content"></div>
+    </section>
+    <section id="mindset" class="page">
+      <div id="mindset-content"></div>
+    </section>
+    <section id="history" class="page">
+      <div id="history-calendar">
+        <h2 id="calendar-title"></h2>
+        <div id="history-calendar-list"></div>
+      </div>
+    </section>
+    <section id="options" class="page">
+      <div id="options-content"></div>
+    </section>
+  </main>
+
+  <div id="task-modal" class="hidden">
+    <div class="task-form">
+      <h2>Nova tarefa</h2>
+      <div class="task-step" id="task-step-1">
+        <input type="text" id="task-title" placeholder="Tarefa" maxlength="27" />
+        <select id="task-aspect"></select>
+      </div>
+      <div class="task-step hidden" id="task-step-2">
+        <select id="task-date-option">
+          <option value="today">Hoje</option>
+          <option value="tomorrow">Amanhã</option>
+          <option value="weekday2">Dia da semana +2</option>
+          <option value="weekday3">Dia da semana +3</option>
+          <option value="weekday4">Dia da semana +4</option>
+          <option value="choose">Escolher data</option>
+          <option value="custom">Personalizar data</option>
+        </select>
+        <input type="date" id="task-date" class="hidden" />
+        <div id="task-custom-week" class="hidden">
+          <label><input type="checkbox" value="0">D</label>
+          <label><input type="checkbox" value="1">S</label>
+          <label><input type="checkbox" value="2">T</label>
+          <label><input type="checkbox" value="3">Q</label>
+          <label><input type="checkbox" value="4">Q</label>
+          <label><input type="checkbox" value="5">S</label>
+          <label><input type="checkbox" value="6">S</label>
+        </div>
+        <input type="time" id="task-time" step="300" />
+        <select id="task-no-time">
+          <option value="">Com horário fixo</option>
+          <option value="morning">Concluir essa manhã</option>
+          <option value="afternoon">Concluir essa tarde</option>
+          <option value="night">Concluir essa noite</option>
+          <option value="today">Para hoje</option>
+          <option value="tomorrow">Para amanhã</option>
+          <option value="week">Para essa semana</option>
+          <option value="month">Para esse mês</option>
+          <option value="year">Para esse ano</option>
+        </select>
+      </div>
+      <div class="task-step hidden" id="task-step-3">
+        <textarea id="task-desc" placeholder="Descrição" maxlength="60"></textarea>
+        <h3>Tempo da tarefa</h3>
+        <div class="time-inputs">
+          <input type="number" id="task-hours" min="0" value="0" />
+          <input type="number" id="task-minutes" min="0" max="59" value="0" />
+        </div>
+        <select id="task-type">
+          <option value="Hábito">Hábito</option>
+          <option value="Tarefa">Tarefa</option>
+          <option value="Agenda">Agenda</option>
+        </select>
+        <button id="save-task">Salvar</button>
+      </div>
+      <button id="complete-task" class="hidden">Concluir</button>
+      <button id="cancel-task">Cancelar</button>
+    </div>
+  </div>
+
+  <div id="conflict-modal" class="hidden">
+    <div class="task-form">
+      <h2>Conflito de tarefas</h2>
+      <div id="conflict-list"></div>
+      <button id="replace-all">Substituir tudo</button>
+      <button id="cancel-conflict">Cancelar</button>
+    </div>
+  </div>
+
+  <div id="law-modal" class="hidden">
+    <div class="task-form">
+      <h2>Nova lei</h2>
+      <input type="text" id="law-title" placeholder="Nome da lei" maxlength="80" />
+      <select id="law-aspect-select"></select>
+      <div class="modal-buttons">
+        <button id="save-law">Salvar</button>
+        <button id="accept-law" class="hidden accept-btn">Aceitar</button>
+        <button id="decline-law" class="hidden decline-btn">Declinar</button>
+        <button id="cancel-law">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="law-action-modal" class="hidden">
+    <div class="task-form">
+      <h2>Lei</h2>
+      <button id="revoke-law" class="decline-btn">Revogar</button>
+      <button id="cancel-law-action">Voltar</button>
+    </div>
+  </div>
+
+  <div id="mindset-modal" class="hidden">
+    <div class="task-form">
+      <h2>Novo mindset</h2>
+      <input type="text" id="mindset-title" placeholder="Título" maxlength="24" />
+      <textarea id="mindset-desc" placeholder="Descrição (até 60 caracteres)" maxlength="60"></textarea>
+      <label for="mindset-rate">Importância: <span id="mindset-rate-value">50</span></label>
+      <input type="range" id="mindset-rate" min="0" max="100" value="50" />
+      <select id="mindset-aspect-select"></select>
+      <div class="modal-buttons">
+        <button id="save-mindset">Salvar</button>
+        <button id="accept-mindset" class="hidden accept-btn">Aceitar</button>
+        <button id="decline-mindset" class="hidden decline-btn">Declinar</button>
+        <button id="delete-mindset" class="hidden decline-btn">Remover</button>
+        <button id="cancel-mindset">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

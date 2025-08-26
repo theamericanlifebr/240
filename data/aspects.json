@@ -1,0 +1,134 @@
+{
+  "Emocional": {
+    "image": "aspect5.png",
+    "importanceQuestion": "De 1 a 10, como você valoriza o autocontrole emocional e a resiliência?",
+    "levelQuestion": "Qual o nível atual do seu autocontrole emocional hoje?",
+    "speech": "Cultivarei autocontrole e resiliência para governar minha mente com sabedoria.",
+    "truths": [
+      "Emoções controladas, decisões melhores.",
+      "Resiliência é o músculo da mente.",
+      "Pausa antes da reação é poder."
+    ]
+  },
+  "Energia": {
+    "image": "aspect6.png",
+    "importanceQuestion": "De 1 a 10, quão importante é manter sua energia e disposição?",
+    "levelQuestion": "Qual o nível atual da sua energia hoje?",
+    "speech": "Cultivarei energia para agir e mover-me com propósito.",
+    "truths": [
+      "Energia alta impulsiona decisões.",
+      "Corpo em movimento, mente desperta.",
+      "Sem energia, nada se concretiza."
+    ]
+  },
+  "Relacionamentos": {
+    "image": "aspect9.png",
+    "importanceQuestion": "De 1 a 10, quão importante é manter relações externas saudáveis?",
+    "levelQuestion": "Qual o nível atual das suas relações externas hoje?",
+    "speech": "Construirei conexões saudáveis que ampliem minha visão e força.",
+    "truths": [
+      "Boas relações abrem portas invisíveis.",
+      "Você é a média das pessoas com quem convive.",
+      "Relações saudáveis fortalecem a saúde mental."
+    ]
+  },
+  "Propósito": {
+    "image": "aspect11.png",
+    "importanceQuestion": "De 1 a 10, quão importante é ter um propósito claro em sua vida?",
+    "levelQuestion": "Qual o nível atual de clareza do seu propósito hoje?",
+    "speech": "Viverei com propósito para orientar minhas ações.",
+    "truths": [
+      "Um propósito claro guia decisões.",
+      "Sem propósito, é fácil se perder.",
+      "Viver com propósito traz realização."
+    ]
+  },
+  "Nutrição": {
+    "image": "aspect2.png",
+    "importanceQuestion": "De 1 a 10, qual a importância de manter uma alimentação equilibrada para sua vida?",
+    "levelQuestion": "Qual o nível atual da sua alimentação equilibrada hoje?",
+    "speech": "Prometo alimentar meu corpo com equilíbrio para sustentar força e clareza mental.",
+    "truths": [
+      "Você é o que absorve, não só o que come.",
+      "Comer bem é investir em energia futura.",
+      "Má alimentação sabota até o melhor plano."
+    ]
+  },
+  "Sono": {
+    "image": "aspect3.png",
+    "importanceQuestion": "De 1 a 10, quão essencial é ter um sono de qualidade para seu desempenho diário?",
+    "levelQuestion": "Qual o nível atual da qualidade do seu sono hoje?",
+    "speech": "Defendo o sono de qualidade como pilar de energia e decisões acertadas.",
+    "truths": [
+      "Dormir bem é como reiniciar o sistema.",
+      "Privação de sono rouba clareza e paciência.",
+      "Recuperação é parte do treinamento."
+    ]
+  },
+  "Higiene": {
+    "image": "aspect4.png",
+    "importanceQuestion": "De 1 a 10, quão importante é manter bons hábitos de higiene para sua saúde?",
+    "levelQuestion": "Qual o nível atual dos seus hábitos de higiene hoje?",
+    "speech": "Manterei a higiene como escudo contra doenças e base para a confiança.",
+    "truths": [
+      "Cuidar do corpo evita doenças invisíveis.",
+      "Higiene é respeito próprio.",
+      "Limpeza física apoia clareza mental."
+    ]
+  },
+  "Exercícios": {
+    "image": "aspect8.png",
+    "importanceQuestion": "De 1 a 10, qual a importância dos exercícios físicos para sua vida?",
+    "levelQuestion": "Qual o nível atual dos seus exercícios físicos hoje?",
+    "speech": "Praticarei exercícios para sustentar minha energia e disciplina.",
+    "truths": [
+      "Corpo ativo, mente focada.",
+      "Movimento diário previne doenças.",
+      "Treinar fortalece a vontade."
+    ]
+  },
+  "Trabalho": {
+    "image": "aspect12.png",
+    "importanceQuestion": "De 1 a 10, quão importante é seu trabalho e produtividade?",
+    "levelQuestion": "Qual o nível atual do seu desempenho no trabalho hoje?",
+    "speech": "Dedicarei-me ao trabalho com foco para construir resultados.",
+    "truths": [
+      "Trabalho bem feito gera oportunidades.",
+      "Disciplina no trabalho cria liberdade.",
+      "Produtividade exige constância."
+    ]
+  },
+  "Financeiro": {
+    "image": "aspect10.png",
+    "importanceQuestion": "De 1 a 10, como você valoriza sua segurança e liberdade financeira?",
+    "levelQuestion": "Qual o nível atual da sua segurança e liberdade financeira hoje?",
+    "speech": "Buscarei estabilidade financeira para garantir minha liberdade de escolha.",
+    "truths": [
+      "Dinheiro compra tempo e escolhas.",
+      "Segurança financeira reduz ansiedade.",
+      "Organização é o alicerce da liberdade econômica."
+    ]
+  },
+  "Estudo": {
+    "image": "aspect7.png",
+    "importanceQuestion": "De 1 a 10, como você valoriza aprender coisas novas constantemente?",
+    "levelQuestion": "Qual o nível atual do seu aprendizado constante hoje?",
+    "speech": "Investirei no aprendizado contínuo como chave para minha evolução.",
+    "truths": [
+      "Aprender é ampliar a liberdade.",
+      "Conhecimento é combustível de oportunidades.",
+      "Cada lição é uma ferramenta nova."
+    ]
+  },
+  "Ambiente": {
+    "image": "aspect1.png",
+    "importanceQuestion": "De 1 a 10, qual a importância de manter um ambiente saudável para o seu bem-estar?",
+    "levelQuestion": "Qual o nível atual de saúde do seu ambiente hoje?",
+    "speech": "Manterei um ambiente saudável que fortaleça minha liderança.",
+    "truths": [
+      "Ambiente limpo, mente clara.",
+      "O espaço ao redor molda o comportamento.",
+      "Cuidar do lugar é cuidar de si."
+    ]
+  }
+}

@@ -415,6 +415,11 @@ li:hover { transform: scale(1.02); }
   box-shadow: 0 0 10px #39ff14;
 }
 
+.task-item.in-progress {
+  background: linear-gradient(135deg, #000, #00008b);
+  box-shadow: 0 0 10px #00008b;
+}
+
 .task-item h3 {
   margin: 0 0 5px 0;
   font-size: 20px;

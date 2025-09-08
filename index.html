@@ -40,6 +40,10 @@
             <h2>Tarefas agendadas</h2>
             <div class="task-group" id="pending-list"></div>
           </div>
+          <div id="tasks-in-progress">
+            <h2>Em curso</h2>
+            <div class="task-group" id="in-progress-list"></div>
+          </div>
           <div id="tasks-completed">
             <h2>Concluídas</h2>
             <div class="task-group" id="completed-list"></div>
@@ -131,9 +135,13 @@
           <option value="Tarefa">Tarefa</option>
           <option value="Agenda">Agenda</option>
         </select>
+        <select id="task-status">
+          <option value="pending">Agendada</option>
+          <option value="completed">Concluída</option>
+        </select>
         <button id="save-task">Salvar</button>
       </div>
-      <button id="complete-task" class="hidden">Concluir</button>
+      <button id="delete-task" class="hidden decline-btn">Excluir</button>
       <button id="cancel-task">Cancelar</button>
     </div>
   </div>

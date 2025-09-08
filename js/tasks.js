@@ -23,7 +23,8 @@ const taskTypeInput = document.getElementById('task-type');
 const taskNoTimeInput = document.getElementById('task-no-time');
 const saveTaskBtn = document.getElementById('save-task');
 const cancelTaskBtn = document.getElementById('cancel-task');
-const completeTaskBtn = document.getElementById('complete-task');
+const taskStatusInput = document.getElementById('task-status');
+const deleteTaskBtn = document.getElementById('delete-task');
 const step1Div = document.getElementById('task-step-1');
 const step2Div = document.getElementById('task-step-2');
 const step3Div = document.getElementById('task-step-3');
@@ -73,7 +74,7 @@ export function initTasks(keys, data, aspects) {
   suggestTaskBtn.addEventListener('click', suggestTask);
   saveTaskBtn.addEventListener('click', saveTask);
   cancelTaskBtn.addEventListener('click', closeTaskModal);
-  completeTaskBtn.addEventListener('click', completeTask);
+  deleteTaskBtn.addEventListener('click', deleteTask);
   taskNoTimeInput.addEventListener('change', () => {
     taskTimeInput.disabled = taskNoTimeInput.value !== '';
   });
@@ -132,16 +133,25 @@ export function initTasks(keys, data, aspects) {
 
 function buildTasks() {
   const pending = document.getElementById('pending-list');
+  const inProgress = document.getElementById('in-progress-list');
   const completed = document.getElementById('completed-list');
   const overdue = document.getElementById('overdue-list');
   const substituted = document.getElementById('substituted-list');
   pending.innerHTML = '';
+  inProgress.innerHTML = '';
   completed.innerHTML = '';
   overdue.innerHTML = '';
   substituted.innerHTML = '';
   const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
   const now = Date.now();
+  const todayStr = new Date(now).toDateString();
   tasks.forEach((t, index) => {
+    const taskDateStr = t.startTime ? new Date(t.startTime).toDateString() : null;
+    if (t.startTime) {
+      if (taskDateStr !== todayStr) return;
+    } else if (!['', 'morning', 'afternoon', 'night', 'today'].includes(t.noTime)) {
+      return;
+    }
     const div = document.createElement('div');
     div.className = 'task-item';
     div.dataset.index = index;
@@ -180,7 +190,8 @@ function buildTasks() {
     div.addEventListener('mouseleave', cancel);
     div.addEventListener('touchend', cancel);
     const time = t.startTime ? new Date(t.startTime).getTime() : null;
-    if (time && time > now) {
+    const endTime = time ? time + (t.duration || 0) * 60000 : null;
+    if (!t.completed && time && time > now) {
       const timer = document.createElement('div');
       timer.className = 'task-timer';
       const diffMs = time - now;
@@ -188,15 +199,11 @@ function buildTasks() {
       if (diffMs >= 3600000) {
         const hh = Math.floor(diffMs / 3600000);
         const mm = Math.floor((diffMs % 3600000) / 60000);
-        txt = `${hh.toString().padStart(2,'0')}:${mm
-          .toString()
-          .padStart(2, '0')}h`;
+        txt = `${hh.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}h`;
       } else {
         const mm = Math.floor(diffMs / 60000);
         const ss = Math.floor((diffMs % 60000) / 1000);
-        txt = `${mm.toString().padStart(2,'0')}:${ss
-          .toString()
-          .padStart(2, '0')}m`;
+        txt = `${mm.toString().padStart(2,'0')}:${ss.toString().padStart(2,'0')}m`;
       }
       timer.textContent = txt;
       div.appendChild(timer);
@@ -207,7 +214,10 @@ function buildTasks() {
     } else if (t.completed) {
       div.classList.add('completed');
       completed.appendChild(div);
-    } else if (time && time < now) {
+    } else if (time && endTime && now >= time && now < endTime) {
+      div.classList.add('in-progress');
+      inProgress.appendChild(div);
+    } else if (time && endTime && now >= endTime) {
       div.classList.add('overdue');
       overdue.appendChild(div);
     } else {
@@ -215,8 +225,8 @@ function buildTasks() {
       pending.appendChild(div);
     }
   });
-  if (!tasks.length) {
-    pending.textContent = 'Sem tarefas ainda';
+  if (!pending.children.length && !inProgress.children.length && !completed.children.length && !overdue.children.length && !substituted.children.length) {
+    pending.textContent = 'Sem tarefas para hoje';
   }
 }
 
@@ -262,15 +272,13 @@ export function openTaskModal(index = null, prefill = null) {
     taskHoursInput.value = Math.floor(dur / 60);
     taskMinutesInput.value = dur % 60;
     taskNoTimeInput.value = t.noTime || '';
+    taskStatusInput.value = t.completed ? 'completed' : 'pending';
     document.querySelector('#task-modal h2').textContent = 'Editar tarefa';
-    if (!t.completed) {
-      completeTaskBtn.classList.remove('hidden');
-    } else {
-      completeTaskBtn.classList.add('hidden');
-    }
+    deleteTaskBtn.classList.remove('hidden');
   } else {
     document.querySelector('#task-modal h2').textContent = 'Nova tarefa';
-    completeTaskBtn.classList.add('hidden');
+    taskStatusInput.value = 'pending';
+    deleteTaskBtn.classList.add('hidden');
     if (prefill) {
       taskTitleInput.value = prefill.title;
       taskAspectInput.value = prefill.aspect;
@@ -368,17 +376,15 @@ function saveTask() {
     const datetime = new Date(baseDate);
     const [hh, mm] = time.split(':');
     datetime.setHours(hh, mm, 0, 0);
-    if (datetime <= new Date()) {
-      alert('Selecione um horário futuro');
-      return;
-    }
+    let completed = taskStatusInput.value === 'completed';
+    if (datetime <= new Date() && editingTaskIndex === null) completed = true;
     const baseTask = {
       title: title.slice(0, 27),
       description: description.slice(0, 60),
       aspect,
       type,
       duration,
-      completed: false
+      completed
     };
     if (dateOption === 'custom' && editingTaskIndex === null) {
       const selectedDays = Array.from(taskCustomInputs)
@@ -397,7 +403,8 @@ function saveTask() {
           closeTaskModal();
           return;
         }
-        tasks.push({ ...baseTask, startTime: d.toISOString() });
+        const isPast = d <= new Date();
+        tasks.push({ ...baseTask, startTime: d.toISOString(), completed: isPast ? true : baseTask.completed });
       }
     } else {
       if (editingTaskIndex !== null) {
@@ -423,14 +430,15 @@ function saveTask() {
       }
     }
   } else {
-      const taskObj = {
-        title: title.slice(0, 27),
+    const completed = taskStatusInput.value === 'completed';
+    const taskObj = {
+      title: title.slice(0, 27),
       description: (description || '').slice(0, 60),
       aspect,
       type,
       duration,
       noTime,
-      completed: false
+      completed
     };
     if (editingTaskIndex !== null) {
       tasks[editingTaskIndex] = taskObj;
@@ -444,10 +452,10 @@ function saveTask() {
   if (window.buildCalendar) window.buildCalendar();
 }
 
-function completeTask() {
+function deleteTask() {
   if (editingTaskIndex === null) return;
   const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-  tasks[editingTaskIndex].completed = true;
+  tasks.splice(editingTaskIndex, 1);
   localStorage.setItem('tasks', JSON.stringify(tasks));
   closeTaskModal();
   buildTasks();

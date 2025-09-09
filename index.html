@@ -32,9 +32,14 @@
     <section id="tasks" class="page">
       <div id="tasks-tabs">
         <div id="tasks-content">
+          <div id="tasks-date-nav">
+            <button id="tasks-prev-day">◀️</button>
+            <span id="tasks-current-date"></span>
+            <button id="tasks-next-day">▶️</button>
+          </div>
           <div id="tasks-hub">
-            <button id="add-task-btn">Nova tarefa</button>
-            <button id="suggest-task-btn">Ver ideias</button>
+            <button id="add-task-btn">▶️</button>
+            <button id="suggest-task-btn">⭐</button>
           </div>
           <div id="tasks-pending">
             <h2>Tarefas agendadas</h2>
@@ -61,8 +66,8 @@
     </section>
     <section id="laws" class="page">
       <div id="laws-hub">
-        <button id="add-law-btn">Nova lei</button>
-        <button id="suggest-law-btn">Ver ideias</button>
+        <button id="add-law-btn">▶️</button>
+        <button id="suggest-law-btn">⭐</button>
       </div>
       <div id="laws-list"></div>
     </section>
@@ -88,9 +93,6 @@
       <h2>Nova tarefa</h2>
       <div class="task-step" id="task-step-1">
         <input type="text" id="task-title" placeholder="Tarefa" maxlength="27" />
-        <select id="task-aspect"></select>
-      </div>
-      <div class="task-step hidden" id="task-step-2">
         <select id="task-date-option">
           <option value="today">Hoje</option>
           <option value="tomorrow">Amanhã</option>
@@ -110,6 +112,8 @@
           <label><input type="checkbox" value="5">S</label>
           <label><input type="checkbox" value="6">S</label>
         </div>
+      </div>
+      <div class="task-step hidden" id="task-step-2">
         <input type="time" id="task-time" step="300" />
         <select id="task-no-time">
           <option value="">Com horário fixo</option>
@@ -124,21 +128,7 @@
         </select>
       </div>
       <div class="task-step hidden" id="task-step-3">
-        <textarea id="task-desc" placeholder="Descrição" maxlength="60"></textarea>
-        <h3>Tempo da tarefa</h3>
-        <div class="time-inputs">
-          <input type="number" id="task-hours" min="0" value="0" />
-          <input type="number" id="task-minutes" min="0" max="59" value="0" />
-        </div>
-        <select id="task-type">
-          <option value="Hábito">Hábito</option>
-          <option value="Tarefa">Tarefa</option>
-          <option value="Agenda">Agenda</option>
-        </select>
-        <select id="task-status">
-          <option value="pending">Agendada</option>
-          <option value="completed">Concluída</option>
-        </select>
+        <select id="task-aspect"></select>
         <button id="save-task">Salvar</button>
       </div>
       <button id="delete-task" class="hidden decline-btn">Excluir</button>
@@ -158,13 +148,19 @@
   <div id="law-modal" class="hidden">
     <div class="task-form">
       <h2>Nova lei</h2>
-      <input type="text" id="law-title" placeholder="Nome da lei" maxlength="80" />
-      <select id="law-aspect-select"></select>
-      <div class="modal-buttons">
-        <button id="save-law">Salvar</button>
-        <button id="accept-law" class="hidden accept-btn">Aceitar</button>
-        <button id="decline-law" class="hidden decline-btn">Declinar</button>
-        <button id="cancel-law">Cancelar</button>
+      <div class="law-step" id="law-step-1">
+        <input type="text" id="law-title" placeholder="Nome da lei" maxlength="80" />
+        <select id="law-aspect-select"></select>
+        <button id="law-next">Próximo</button>
+      </div>
+      <div class="law-step hidden" id="law-step-2">
+        <textarea id="law-desc" placeholder="Descrição (até 2000 caracteres)" maxlength="2000"></textarea>
+        <div class="modal-buttons">
+          <button id="save-law">Salvar</button>
+          <button id="accept-law" class="hidden accept-btn">Aceitar</button>
+          <button id="decline-law" class="hidden decline-btn">Declinar</button>
+          <button id="cancel-law">Cancelar</button>
+        </div>
       </div>
     </div>
   </div>
@@ -174,6 +170,14 @@
       <h2>Lei</h2>
       <button id="revoke-law" class="decline-btn">Revogar</button>
       <button id="cancel-law-action">Voltar</button>
+    </div>
+  </div>
+
+  <div id="law-view-modal" class="hidden">
+    <div class="task-form">
+      <h1 id="law-view-title"></h1>
+      <p id="law-view-desc"></p>
+      <button id="law-view-close">Fechar</button>
     </div>
   </div>
 
@@ -192,6 +196,16 @@
         <button id="delete-mindset" class="hidden decline-btn">Remover</button>
         <button id="cancel-mindset">Cancelar</button>
       </div>
+    </div>
+  </div>
+
+  <div id="note-modal" class="hidden">
+    <div class="task-form">
+      <h2>Anotações</h2>
+      <div id="note-list" style="max-height:200px;overflow-y:auto;"></div>
+      <textarea id="note-text" maxlength="2000" placeholder="Digite uma anotação"></textarea>
+      <button id="note-save">Salvar</button>
+      <button id="note-close">Fechar</button>
     </div>
   </div>
 

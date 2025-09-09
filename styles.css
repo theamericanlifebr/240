@@ -1,23 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@700&display=swap');
-
-@font-face {
-  font-family: 'Lato';
-  src: url('Fonts/Lato-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-}
-@font-face {
-  font-family: 'Lato';
-  src: url('Fonts/Lato-Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-}
-@font-face {
-  font-family: 'Lato';
-  src: url('Fonts/Lato-Light.ttf') format('truetype');
-  font-weight: 300;
-  font-style: normal;
-}
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;700&display=swap');
 
 .black {
   --bg-color: #000;
@@ -95,7 +76,7 @@ body.turquoise {
 body {
   background: var(--bg-color);
   color: var(--text-color);
-  font-family: 'Lato', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-weight: 300;
   margin: 0;
   user-select: none;
@@ -119,6 +100,24 @@ body.black button,
 body.black li {
   color: var(--text-color);
   text-shadow: 0 0 5px var(--text-color);
+}
+
+#tasks-date-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.boxtime {
+  position: relative;
+}
+
+.note-indicator {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 body.black .menu-item img,
@@ -170,14 +169,14 @@ body.black .task-form {
 }
 
 h1 {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 48px;
   font-weight: 700;
   margin-bottom: 20px;
 }
 
 h2 {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 24px;
   margin-top: 30px;
 }
@@ -205,7 +204,7 @@ select {
   height: 46px;
   background: rgba(0, 0, 0, 0.8);
   color: #fff;
-  font-family: 'Lato', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-weight: 700;
   font-size: 18px;
   border: none;
@@ -721,7 +720,7 @@ li:hover { transform: scale(1.02); }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Lato', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-size: 20px;
 }
 #history-calendar-list {

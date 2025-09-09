@@ -16,6 +16,15 @@ const cancelLawBtn = document.getElementById('cancel-law');
 const lawActionModal = document.getElementById('law-action-modal');
 const revokeLawBtn = document.getElementById('revoke-law');
 const cancelLawActionBtn = document.getElementById('cancel-law-action');
+const lawNextBtn = document.getElementById('law-next');
+const lawDescInput = document.getElementById('law-desc');
+const lawStep1 = document.getElementById('law-step-1');
+const lawStep2 = document.getElementById('law-step-2');
+const lawViewModal = document.getElementById('law-view-modal');
+const lawViewTitle = document.getElementById('law-view-title');
+const lawViewDesc = document.getElementById('law-view-desc');
+const lawViewClose = document.getElementById('law-view-close');
+let currentLawStep = 1;
 
 export function initLaws(keys, data, colors) {
   aspectKeys = keys;
@@ -27,6 +36,8 @@ export function initLaws(keys, data, colors) {
   cancelLawBtn.addEventListener('click', closeLawModal);
   acceptLawBtn.addEventListener('click', saveLaw);
   declineLawBtn.addEventListener('click', closeLawModal);
+  lawNextBtn.addEventListener('click', () => showLawStep(2));
+  lawViewClose.addEventListener('click', () => lawViewModal.classList.add('hidden'));
   lawAspectSelect.addEventListener('change', updateLawModalColors);
   revokeLawBtn.addEventListener('click', () => {
     const index = Number(lawActionModal.dataset.index);
@@ -83,6 +94,17 @@ function updateLawModalColors() {
   });
 }
 
+function showLawStep(step) {
+  currentLawStep = step;
+  if (step === 1) {
+    lawStep1.classList.remove('hidden');
+    lawStep2.classList.add('hidden');
+  } else {
+    lawStep1.classList.add('hidden');
+    lawStep2.classList.remove('hidden');
+  }
+}
+
 function buildLaws() {
   const container = document.getElementById('laws-list');
   container.innerHTML = '';
@@ -109,6 +131,7 @@ function buildLaws() {
     div.addEventListener('mouseup', cancel);
     div.addEventListener('mouseleave', cancel);
     div.addEventListener('touchend', cancel);
+    div.addEventListener('click', () => openLawView(l));
     container.appendChild(div);
   });
   if (!laws.length) {
@@ -129,9 +152,11 @@ function openLawModal(prefill = null, suggestion = false) {
   if (prefill) {
     lawTitleInput.value = prefill.title;
     lawAspectSelect.value = prefill.aspect;
+    lawDescInput.value = prefill.description || '';
   } else {
     lawTitleInput.value = '';
     lawAspectSelect.value = aspectKeys[0] || '';
+    lawDescInput.value = '';
   }
   lawTitleInput.readOnly = suggestion;
   lawAspectSelect.disabled = suggestion;
@@ -145,6 +170,7 @@ function openLawModal(prefill = null, suggestion = false) {
     declineLawBtn.classList.add('hidden');
   }
   updateLawModalColors();
+  showLawStep(1);
   lawModal.classList.add('show');
   lawModal.classList.remove('hidden');
 }
@@ -152,14 +178,16 @@ function openLawModal(prefill = null, suggestion = false) {
 function closeLawModal() {
   lawModal.classList.remove('show');
   lawModal.classList.add('hidden');
+  showLawStep(1);
 }
 
 function saveLaw() {
   const title = lawTitleInput.value.trim().slice(0,80);
   if (!title) return;
   const aspect = lawAspectSelect.value;
+  const description = lawDescInput.value.trim().slice(0,2000);
   const laws = JSON.parse(localStorage.getItem('customLaws') || '[]');
-  laws.push({ title, aspect });
+  laws.push({ title, aspect, description });
   localStorage.setItem('customLaws', JSON.stringify(laws));
   closeLawModal();
   buildLaws();
@@ -169,7 +197,7 @@ function suggestLaw() {
   if (!Array.isArray(lawsData) || !lawsData.length) return;
   const idea = lawsData[Math.floor(Math.random() * lawsData.length)];
   const laws = JSON.parse(localStorage.getItem('customLaws') || '[]');
-  laws.push({ title: idea.title, aspect: idea.aspect });
+  laws.push({ title: idea.title, aspect: idea.aspect, description: idea.description || '' });
   localStorage.setItem('customLaws', JSON.stringify(laws));
   buildLaws();
 }
@@ -178,6 +206,12 @@ function openLawActionModal(index) {
   lawActionModal.dataset.index = index;
   lawActionModal.classList.add('show');
   lawActionModal.classList.remove('hidden');
+}
+
+function openLawView(law) {
+  lawViewTitle.textContent = law.title;
+  lawViewDesc.textContent = law.description || '';
+  lawViewModal.classList.remove('hidden');
 }
 
 function closeLawActionModal() {

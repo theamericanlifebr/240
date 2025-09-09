@@ -5,11 +5,22 @@ let calendarTitle;
 let calendarList;
 let aspectsMap = {};
 let titleTouchX = 0;
+let noteModal;
+let noteListDiv;
+let noteText;
+let noteSave;
+let noteClose;
+let currentNoteKey = null;
 
 export function initHistory(aspects) {
   aspectsMap = aspects;
   calendarTitle = document.getElementById('calendar-title');
   calendarList = document.getElementById('history-calendar-list');
+  noteModal = document.getElementById('note-modal');
+  noteListDiv = document.getElementById('note-list');
+  noteText = document.getElementById('note-text');
+  noteSave = document.getElementById('note-save');
+  noteClose = document.getElementById('note-close');
   if (calendarTitle) {
     calendarTitle.addEventListener('touchstart', e => {
       titleTouchX = e.touches[0].clientX;
@@ -32,6 +43,8 @@ export function initHistory(aspects) {
     if (e.key === 'ArrowLeft') changePeriod(-1);
     else if (e.key === 'ArrowRight') changePeriod(1);
   });
+  noteSave.addEventListener('click', saveNote);
+  noteClose.addEventListener('click', () => { noteModal.classList.add('hidden'); currentNoteKey = null; });
   buildCalendar();
   setInterval(buildCalendar, 60000);
   window.buildCalendar = buildCalendar;
@@ -44,6 +57,7 @@ export function buildCalendar() {
   const periodInfo = getPeriodInfo(start.getHours());
   calendarTitle.textContent = formatDate(start);
   const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+  const notes = JSON.parse(localStorage.getItem('notes') || '{}');
   const periodEnd = new Date(start.getTime() + 6 * 60 * 60 * 1000);
   const periodTasks = tasks
     .map((t, idx) => ({ ...t, idx }))
@@ -84,12 +98,60 @@ export function buildCalendar() {
       icons.appendChild(img);
     });
     boxtime.appendChild(icons);
+    if (notes[blockStart] && notes[blockStart].length) {
+      const noteSpan = document.createElement('span');
+      noteSpan.textContent = '🗨️';
+      noteSpan.className = 'note-indicator';
+      noteSpan.addEventListener('click', e => { e.stopPropagation(); openNote(blockStart); });
+      boxtime.appendChild(noteSpan);
+    }
+    let lastTap = 0;
+    boxtime.addEventListener('dblclick', () => openTaskModal(null, { startTime: blockTime.toISOString() }));
+    boxtime.addEventListener('touchend', e => {
+      const nowTap = Date.now();
+      if (nowTap - lastTap < 300) openTaskModal(null, { startTime: blockTime.toISOString() });
+      lastTap = nowTap;
+    });
+    let pressTimer;
+    const startPress = () => { pressTimer = setTimeout(() => openNote(blockStart), 1000); };
+    const cancelPress = () => clearTimeout(pressTimer);
+    boxtime.addEventListener('mousedown', startPress);
+    boxtime.addEventListener('touchstart', startPress);
+    boxtime.addEventListener('mouseup', cancelPress);
+    boxtime.addEventListener('mouseleave', cancelPress);
+    boxtime.addEventListener('touchend', cancelPress);
     calendarList.appendChild(boxtime);
   }
 }
 
 function changePeriod(delta) {
   calendarStart = new Date(calendarStart.getTime() + delta * 6 * 60 * 60 * 1000);
+  buildCalendar();
+}
+
+function openNote(key) {
+  const notes = JSON.parse(localStorage.getItem('notes') || '{}');
+  currentNoteKey = key;
+  noteListDiv.innerHTML = '';
+  (notes[key] || []).forEach(n => {
+    const p = document.createElement('p');
+    p.textContent = n;
+    noteListDiv.appendChild(p);
+  });
+  noteText.value = '';
+  noteModal.classList.remove('hidden');
+}
+
+function saveNote() {
+  if (!currentNoteKey) return;
+  const txt = noteText.value.trim();
+  if (!txt) return;
+  const notes = JSON.parse(localStorage.getItem('notes') || '{}');
+  if (!Array.isArray(notes[currentNoteKey])) notes[currentNoteKey] = [];
+  notes[currentNoteKey].push(txt.slice(0,2000));
+  localStorage.setItem('notes', JSON.stringify(notes));
+  noteModal.classList.add('hidden');
+  currentNoteKey = null;
   buildCalendar();
 }
 

@@ -17,6 +17,7 @@ const taskCustomInputs = document.querySelectorAll('#task-custom-week input');
 const taskTimeInput = document.getElementById('task-time');
 const taskAspectInput = document.getElementById('task-aspect');
 const taskNoTimeInput = document.getElementById('task-no-time');
+const taskDurationInput = document.getElementById('task-duration');
 const saveTaskBtn = document.getElementById('save-task');
 const cancelTaskBtn = document.getElementById('cancel-task');
 const deleteTaskBtn = document.getElementById('delete-task');
@@ -259,6 +260,7 @@ export function openTaskModal(index = null, prefill = null) {
   taskCustomWeekDiv.classList.add('hidden');
   taskTimeInput.value = now.toTimeString().slice(0,5);
   taskNoTimeInput.value = '';
+  taskDurationInput.value = '15';
   taskCustomInputs.forEach(i => (i.checked = false));
   if (index !== null) {
     const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
@@ -277,6 +279,7 @@ export function openTaskModal(index = null, prefill = null) {
     }
     taskAspectInput.value = t.aspect;
     taskNoTimeInput.value = t.noTime || '';
+    taskDurationInput.value = t.duration || 15;
     document.querySelector('#task-modal h2').textContent = 'Editar tarefa';
     deleteTaskBtn.classList.remove('hidden');
   } else {
@@ -292,9 +295,11 @@ export function openTaskModal(index = null, prefill = null) {
         taskDateInput.value = d.toISOString().slice(0,10);
         taskTimeInput.value = d.toTimeString().slice(0,5);
       }
+      taskDurationInput.value = prefill.duration || 15;
     } else {
       taskTitleInput.value = '';
       taskAspectInput.value = aspectKeys[0] || '';
+      taskDurationInput.value = '15';
     }
   }
   showTaskStep(1);
@@ -361,6 +366,7 @@ function saveTask() {
   const aspect = taskAspectInput.value;
   const noTime = taskNoTimeInput.value;
   const time = taskTimeInput.value;
+  const duration = parseInt(taskDurationInput.value) || 0;
   const dateOption = taskDateOption.value;
   const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
   if (!noTime) {
@@ -381,7 +387,7 @@ function saveTask() {
       title: title.slice(0, 27),
       aspect,
       type: 'Tarefa',
-      duration: 0,
+      duration,
       completed: false
     };
     if (dateOption === 'custom' && editingTaskIndex === null) {
@@ -393,7 +399,7 @@ function saveTask() {
         const d = new Date(datetime);
         const diff = (day - d.getDay() + 7) % 7;
         d.setDate(d.getDate() + diff);
-        const conflicts = findConflicts(d, 0, tasks);
+        const conflicts = findConflicts(d, duration, tasks);
         if (conflicts.length) {
           pendingTask = { ...baseTask, startTime: d.toISOString(), editIndex: null };
           conflictingIndices = conflicts.map(c => c.idx);
@@ -406,7 +412,7 @@ function saveTask() {
       }
     } else {
       if (editingTaskIndex !== null) {
-        const conflicts = findConflicts(datetime, 0, tasks, editingTaskIndex);
+        const conflicts = findConflicts(datetime, duration, tasks, editingTaskIndex);
         if (conflicts.length) {
           pendingTask = { ...baseTask, startTime: datetime.toISOString(), editIndex: editingTaskIndex };
           conflictingIndices = conflicts.map(c => c.idx);
@@ -416,7 +422,7 @@ function saveTask() {
         }
         tasks[editingTaskIndex] = { ...baseTask, startTime: datetime.toISOString() };
       } else {
-        const conflicts = findConflicts(datetime, 0, tasks);
+        const conflicts = findConflicts(datetime, duration, tasks);
         if (conflicts.length) {
           pendingTask = { ...baseTask, startTime: datetime.toISOString(), editIndex: null };
           conflictingIndices = conflicts.map(c => c.idx);
@@ -432,7 +438,7 @@ function saveTask() {
       title: title.slice(0, 27),
       aspect,
       type: 'Tarefa',
-      duration: 0,
+      duration,
       noTime,
       completed: false
     };

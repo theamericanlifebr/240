@@ -44,7 +44,7 @@ export function initHistory(aspects) {
     else if (e.key === 'ArrowRight') changePeriod(1);
   });
   noteSave.addEventListener('click', saveNote);
-  noteClose.addEventListener('click', () => { noteModal.classList.add('hidden'); currentNoteKey = null; });
+  noteClose.addEventListener('click', () => { noteModal.classList.add('hidden'); noteModal.classList.remove('show'); currentNoteKey = null; });
   buildCalendar();
   setInterval(buildCalendar, 60000);
   window.buildCalendar = buildCalendar;
@@ -139,6 +139,7 @@ function openNote(key) {
     noteListDiv.appendChild(p);
   });
   noteText.value = '';
+  noteModal.classList.add('show');
   noteModal.classList.remove('hidden');
 }
 
@@ -151,6 +152,7 @@ function saveNote() {
   notes[currentNoteKey].push(txt.slice(0,2000));
   localStorage.setItem('notes', JSON.stringify(notes));
   noteModal.classList.add('hidden');
+  noteModal.classList.remove('show');
   currentNoteKey = null;
   buildCalendar();
 }

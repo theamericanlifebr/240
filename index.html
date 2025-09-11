@@ -40,6 +40,7 @@
           <div id="tasks-hub">
             <button id="add-task-btn">▶️</button>
             <button id="suggest-task-btn">⭐</button>
+            <button id="archived-task-btn">📂</button>
           </div>
           <div id="tasks-pending">
             <h2>Tarefas agendadas</h2>
@@ -56,6 +57,10 @@
           <div id="tasks-overdue">
             <h2>Atrasadas</h2>
             <div class="task-group" id="overdue-list"></div>
+          </div>
+          <div id="tasks-paused">
+            <h2>Pausadas</h2>
+            <div class="task-group" id="paused-list"></div>
           </div>
           <div id="tasks-substituted">
             <h2>Substituídas</h2>
@@ -134,6 +139,24 @@
       </div>
       <button id="delete-task" class="hidden decline-btn">Excluir</button>
       <button id="cancel-task">Cancelar</button>
+    </div>
+  </div>
+
+  <div id="task-action-modal" class="hidden">
+    <div class="task-actions">
+      <button id="action-delay">Adiar</button>
+      <button id="action-desist">Desistir</button>
+      <button id="action-complete">Concluída</button>
+      <button id="action-pause">Pausar</button>
+      <button id="action-cancel">Cancelar</button>
+    </div>
+  </div>
+
+  <div id="archived-modal" class="hidden">
+    <div class="task-form">
+      <h2>Arquivadas</h2>
+      <div id="archived-list"></div>
+      <button id="close-archived">Fechar</button>
     </div>
   </div>
 

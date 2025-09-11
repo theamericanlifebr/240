@@ -10,6 +10,7 @@ let currentTaskStep = 1;
 
 const addTaskBtn = document.getElementById('add-task-btn');
 const suggestTaskBtn = document.getElementById('suggest-task-btn');
+const archivedBtn = document.getElementById('archived-task-btn');
 const taskModal = document.getElementById('task-modal');
 const taskTitleInput = document.getElementById('task-title');
 const taskDateOption = document.getElementById('task-date-option');
@@ -30,6 +31,15 @@ const conflictModal = document.getElementById('conflict-modal');
 const conflictList = document.getElementById('conflict-list');
 const replaceAllBtn = document.getElementById('replace-all');
 const cancelConflictBtn = document.getElementById('cancel-conflict');
+const actionModal = document.getElementById('task-action-modal');
+const delayActionBtn = document.getElementById('action-delay');
+const desistActionBtn = document.getElementById('action-desist');
+const completeActionBtn = document.getElementById('action-complete');
+const pauseActionBtn = document.getElementById('action-pause');
+const cancelActionBtn = document.getElementById('action-cancel');
+const archivedModal = document.getElementById('archived-modal');
+const archivedList = document.getElementById('archived-list');
+const closeArchivedBtn = document.getElementById('close-archived');
 
 const prevDayBtn = document.getElementById('tasks-prev-day');
 const nextDayBtn = document.getElementById('tasks-next-day');
@@ -75,6 +85,13 @@ export function initTasks(keys, data, aspects) {
   aspectsMap = aspects;
   addTaskBtn.addEventListener('click', () => openTaskModal());
   suggestTaskBtn.addEventListener('click', suggestTask);
+  archivedBtn.addEventListener('click', openArchivedModal);
+  delayActionBtn.addEventListener('click', () => handleAction('delay'));
+  desistActionBtn.addEventListener('click', () => handleAction('desist'));
+  completeActionBtn.addEventListener('click', () => handleAction('complete'));
+  pauseActionBtn.addEventListener('click', () => handleAction('pause'));
+  cancelActionBtn.addEventListener('click', closeActionModal);
+  closeArchivedBtn.addEventListener('click', closeArchivedModal);
   saveTaskBtn.addEventListener('click', saveTask);
   cancelTaskBtn.addEventListener('click', closeTaskModal);
   deleteTaskBtn.addEventListener('click', deleteTask);
@@ -131,8 +148,10 @@ export function initTasks(keys, data, aspects) {
     });
   }
   buildTasks();
+  if (window.updateActionStats) window.updateActionStats();
   setInterval(() => {
     buildTasks();
+    if (window.updateActionStats) window.updateActionStats();
     if (window.buildCalendar) window.buildCalendar();
   }, 1000);
 }
@@ -143,16 +162,19 @@ function buildTasks() {
   const completed = document.getElementById('completed-list');
   const overdue = document.getElementById('overdue-list');
   const substituted = document.getElementById('substituted-list');
+  const paused = document.getElementById('paused-list');
   pending.innerHTML = '';
   inProgress.innerHTML = '';
   completed.innerHTML = '';
   overdue.innerHTML = '';
   substituted.innerHTML = '';
+  paused.innerHTML = '';
   const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
   const now = Date.now();
   const selectedStr = currentTasksDate.toDateString();
   const todayStr = new Date().toDateString();
   tasks.forEach((t, index) => {
+    if (t.desisted) return;
     const taskDateStr = t.startTime ? new Date(t.startTime).toDateString() : null;
     if (t.startTime) {
       if (taskDateStr !== selectedStr) return;
@@ -182,12 +204,7 @@ function buildTasks() {
 
     div.appendChild(icon);
     div.appendChild(textDiv);
-    div.addEventListener('dblclick', () => {
-      tasks[index].completed = true;
-      localStorage.setItem('tasks', JSON.stringify(tasks));
-      buildTasks();
-      playSound('taskcomplete');
-    });
+    div.addEventListener('dblclick', () => openActionModal(index));
     let pressTimer;
     const start = () => {
       pressTimer = setTimeout(() => openTaskModal(index), 500);
@@ -200,10 +217,26 @@ function buildTasks() {
     div.addEventListener('touchend', cancel);
     const time = t.startTime ? new Date(t.startTime).getTime() : null;
     const endTime = time ? time + (t.duration || 0) * 60000 : null;
-    if (!t.completed && time && time > now) {
+    if (!t.completed && !t.paused && time && time > now) {
       const timer = document.createElement('div');
       timer.className = 'task-timer';
       const diffMs = time - now;
+      let txt;
+      if (diffMs >= 3600000) {
+        const hh = Math.floor(diffMs / 3600000);
+        const mm = Math.floor((diffMs % 3600000) / 60000);
+        txt = `${hh.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}h`;
+      } else {
+        const mm = Math.floor(diffMs / 60000);
+        const ss = Math.floor((diffMs % 60000) / 1000);
+        txt = `${mm.toString().padStart(2,'0')}:${ss.toString().padStart(2,'0')}m`;
+      }
+      timer.textContent = txt;
+      div.appendChild(timer);
+    } else if (!t.completed && !t.paused && time && endTime && now >= time && now < endTime) {
+      const timer = document.createElement('div');
+      timer.className = 'task-timer';
+      const diffMs = endTime - now;
       let txt;
       if (diffMs >= 3600000) {
         const hh = Math.floor(diffMs / 3600000);
@@ -223,6 +256,9 @@ function buildTasks() {
     } else if (t.completed) {
       div.classList.add('completed');
       completed.appendChild(div);
+    } else if (t.paused) {
+      div.classList.add('paused');
+      paused.appendChild(div);
     } else if (time && endTime && now >= time && now < endTime) {
       div.classList.add('in-progress');
       inProgress.appendChild(div);
@@ -234,7 +270,7 @@ function buildTasks() {
       pending.appendChild(div);
     }
   });
-  if (!pending.children.length && !inProgress.children.length && !completed.children.length && !overdue.children.length && !substituted.children.length) {
+  if (!pending.children.length && !inProgress.children.length && !completed.children.length && !overdue.children.length && !substituted.children.length && !paused.children.length) {
     pending.textContent = 'Sem tarefas para hoje';
   }
 }
@@ -393,7 +429,9 @@ function saveTask() {
       aspect,
       type: 'Tarefa',
       duration,
-      completed: false
+      completed: false,
+      desisted: false,
+      paused: false
     };
     if (dateOption === 'custom' && editingTaskIndex === null) {
       const selectedDays = Array.from(taskCustomInputs)
@@ -425,7 +463,8 @@ function saveTask() {
           closeTaskModal();
           return;
         }
-        tasks[editingTaskIndex] = { ...baseTask, startTime: datetime.toISOString() };
+        const existing = tasks[editingTaskIndex];
+        tasks[editingTaskIndex] = { ...existing, ...baseTask, startTime: datetime.toISOString(), desisted: existing?.desisted || false };
       } else {
         const conflicts = findConflicts(datetime, duration, tasks);
         if (conflicts.length) {
@@ -445,14 +484,20 @@ function saveTask() {
       type: 'Tarefa',
       duration,
       noTime,
-      completed: false
+      completed: false,
+      desisted: false,
+      paused: false
     };
-    if (editingTaskIndex !== null) tasks[editingTaskIndex] = taskObj; else tasks.push(taskObj);
+    if (editingTaskIndex !== null) {
+      const existing = tasks[editingTaskIndex];
+      tasks[editingTaskIndex] = { ...existing, ...taskObj, desisted: existing?.desisted || false };
+    } else tasks.push(taskObj);
   }
   localStorage.setItem('tasks', JSON.stringify(tasks));
   const isNew = editingTaskIndex === null;
   closeTaskModal();
   buildTasks();
+  if (window.updateActionStats) window.updateActionStats();
   if (window.buildCalendar) window.buildCalendar();
   if (isNew) playSound('newtask');
 }
@@ -460,11 +505,71 @@ function saveTask() {
 function deleteTask() {
   if (editingTaskIndex === null) return;
   const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-  tasks.splice(editingTaskIndex, 1);
+  tasks[editingTaskIndex].desisted = true;
   localStorage.setItem('tasks', JSON.stringify(tasks));
   closeTaskModal();
   buildTasks();
+  if (window.updateActionStats) window.updateActionStats();
   if (window.buildCalendar) window.buildCalendar();
+}
+
+function openActionModal(index) {
+  actionModal.dataset.index = index;
+  actionModal.classList.remove('hidden');
+  actionModal.classList.add('show');
+}
+
+function closeActionModal() {
+  actionModal.classList.add('hidden');
+  actionModal.classList.remove('show');
+  delete actionModal.dataset.index;
+}
+
+function handleAction(type) {
+  const idx = parseInt(actionModal.dataset.index || '-1', 10);
+  const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+  const t = tasks[idx];
+  if (!t) return;
+  if (type === 'delay') {
+    closeActionModal();
+    openTaskModal(idx);
+    return;
+  }
+  if (type === 'desist') {
+    t.desisted = true;
+  } else if (type === 'complete') {
+    t.completed = true;
+    t.paused = false;
+  } else if (type === 'pause') {
+    t.paused = true;
+  }
+  tasks[idx] = t;
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  closeActionModal();
+  buildTasks();
+  if (window.updateActionStats) window.updateActionStats();
+  if (type === 'complete') playSound('taskcomplete');
+}
+
+function openArchivedModal() {
+  archivedList.innerHTML = '';
+  const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+  tasks.forEach(t => {
+    if (!t.desisted) return;
+    const div = document.createElement('div');
+    div.className = 'task-item desisted';
+    const h3 = document.createElement('h3');
+    h3.textContent = t.title;
+    div.appendChild(h3);
+    archivedList.appendChild(div);
+  });
+  archivedModal.classList.remove('hidden');
+  archivedModal.classList.add('show');
+}
+
+function closeArchivedModal() {
+  archivedModal.classList.add('hidden');
+  archivedModal.classList.remove('show');
 }
 
 function replaceAllConflicts() {
@@ -489,6 +594,7 @@ function replaceAllConflicts() {
   pendingTask = null;
   conflictingIndices = [];
   buildTasks();
+  if (window.updateActionStats) window.updateActionStats();
   if (window.buildCalendar) window.buildCalendar();
   if (addedNew) playSound('newtask');
 }

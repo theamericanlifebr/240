@@ -182,10 +182,10 @@ function getPhrase(key, level) {
 }
 
 export function initStats(keys, res, colors, aspects) {
-  aspectKeys = ['logo', ...keys];
+  aspectKeys = keys;
   responses = res;
   statsColors = colors;
-  aspectsData = { ...aspects, logo: { image: 'logo.png' } };
+  aspectsData = aspects;
   currentIndex = 0;
   buildStats();
 }
@@ -193,6 +193,11 @@ export function initStats(keys, res, colors, aspects) {
 function buildStats() {
   const container = document.getElementById('stats-content');
   container.innerHTML = '';
+
+  const actionStats = document.createElement('div');
+  actionStats.id = 'actions-stats';
+  container.appendChild(actionStats);
+  updateActionStats();
 
   const display = document.createElement('div');
   display.className = 'stats-display';
@@ -241,17 +246,10 @@ function buildStats() {
     const key = aspectKeys[currentIndex];
     img.src = aspectsData[key].image;
     img.alt = key;
-    name.textContent = key === 'logo' ? '' : key;
+    name.textContent = key;
 
     barraAvaliacao.oninput = null;
     barraAvaliacao.onchange = null;
-
-    if (key === 'logo') {
-      barraAvaliacao.style.display = 'none';
-      barraResultado.style.display = 'none';
-      phraseEl.textContent = '';
-      return;
-    }
 
     const storedLevel = responses[key]?.level;
 
@@ -328,5 +326,22 @@ function buildStats() {
     }
   });
 }
+
+export function updateActionStats() {
+  const el = document.getElementById('actions-stats');
+  if (!el) return;
+  const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+  const total = tasks.length;
+  const conclu = tasks.filter(t => t.completed).length;
+  const desist = tasks.filter(t => t.desisted).length;
+  const agend = tasks.filter(t => !t.completed && !t.desisted).length;
+  el.innerHTML = `<h2>Estatísticas das Ações</h2>
+    <p>Ações totais: ${total}</p>
+    <p>Concluídas: ${conclu}</p>
+    <p>Agendadas: ${agend}</p>
+    <p>Desistidas: ${desist}</p>`;
+}
+
+window.updateActionStats = updateActionStats;
 
 export function checkStatsPrompt() {}

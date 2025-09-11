@@ -107,6 +107,10 @@ footer {
   margin-top: 20px;
 }
 
+#footer-date {
+  font-weight: 700;
+}
+
 #tasks-date-nav {
   display: flex;
   justify-content: center;

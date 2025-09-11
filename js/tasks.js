@@ -295,7 +295,10 @@ function updateTasksDateLabel() {
   const options = { day: 'numeric', month: 'long', year: 'numeric' };
   const parts = currentTasksDate.toLocaleDateString('pt-BR', options).split(' ');
   const month = parts[2] ? parts[2].charAt(0).toUpperCase() + parts[2].slice(1) : '';
-  currentDateSpan.textContent = `${parts[0]} de ${month} de ${parts[4]}`;
+  const dateStr = `${parts[0]} de ${month} de ${parts[4]}`;
+  currentDateSpan.textContent = dateStr;
+  const footer = document.getElementById('footer-date');
+  if (footer) footer.innerHTML = `<strong>${dateStr}</strong>`;
 }
 
 export function openTaskModal(index = null, prefill = null) {

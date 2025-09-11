@@ -131,6 +131,16 @@ export function initTasks(keys, data, aspects) {
       if (dx < -50) nextTaskStep();
       else if (dx > 50) prevTaskStep();
     });
+    const tasksContent = document.getElementById('tasks-content');
+    let swipeX = 0;
+    tasksContent.addEventListener('touchstart', e => {
+      swipeX = e.touches[0].clientX;
+    });
+    tasksContent.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - swipeX;
+      if (dx < -50) changeTasksDate(1);
+      else if (dx > 50) changeTasksDate(-1);
+    });
     const icon = document.querySelector('#tasks .icone-central');
     if (icon) {
       let lastTap = 0;
@@ -282,7 +292,10 @@ function changeTasksDate(delta) {
 }
 
 function updateTasksDateLabel() {
-  currentDateSpan.textContent = currentTasksDate.toLocaleDateString('pt-BR');
+  const options = { day: 'numeric', month: 'long', year: 'numeric' };
+  const parts = currentTasksDate.toLocaleDateString('pt-BR', options).split(' ');
+  const month = parts[2] ? parts[2].charAt(0).toUpperCase() + parts[2].slice(1) : '';
+  currentDateSpan.textContent = `${parts[0]} de ${month} de ${parts[4]}`;
 }
 
 export function openTaskModal(index = null, prefill = null) {

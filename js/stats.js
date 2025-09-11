@@ -335,11 +335,24 @@ export function updateActionStats() {
   const conclu = tasks.filter(t => t.completed).length;
   const desist = tasks.filter(t => t.desisted).length;
   const agend = tasks.filter(t => !t.completed && !t.desisted).length;
+  const completedTasks = tasks.filter(t => t.completed && !t.desisted);
+  const totalMin = completedTasks.reduce((s, t) => s + (t.duration || 0), 0);
+  const todayStr = new Date().toDateString();
+  const todayMin = completedTasks
+    .filter(t => {
+      if (t.startTime) {
+        return new Date(t.startTime).toDateString() === todayStr;
+      }
+      return ['today', 'morning', 'afternoon', 'night', ''].includes(t.noTime);
+    })
+    .reduce((s, t) => s + (t.duration || 0), 0);
   el.innerHTML = `<h2>Estatísticas das Ações</h2>
     <p>Ações totais: ${total}</p>
     <p>Concluídas: ${conclu}</p>
     <p>Agendadas: ${agend}</p>
-    <p>Desistidas: ${desist}</p>`;
+    <p>Desistidas: ${desist}</p>
+    <p>Minutos totais concluídos: ${totalMin}</p>
+    <p>Minutos concluídos hoje: ${todayMin}</p>`;
 }
 
 window.updateActionStats = updateActionStats;

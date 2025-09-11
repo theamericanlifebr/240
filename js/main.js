@@ -188,6 +188,15 @@ document.addEventListener('keydown', e => {
 
 const headerLogo = document.getElementById('header-logo');
 const menuCarousel = document.getElementById('menu-carousel');
+const footerDate = document.getElementById('footer-date');
+if (footerDate) {
+  const now = new Date();
+  footerDate.textContent = now.toLocaleDateString('pt-BR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+}
 
 let savedTheme = localStorage.getItem('theme');
 if (savedTheme === 'turquoise') {

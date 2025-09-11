@@ -102,6 +102,11 @@ body.black li {
   text-shadow: 0 0 5px var(--text-color);
 }
 
+footer {
+  text-align: center;
+  margin-top: 20px;
+}
+
 #tasks-date-nav {
   display: flex;
   justify-content: center;
@@ -953,8 +958,18 @@ li:hover { transform: scale(1.02); }
     display: block;
     font-weight: 700;
   }
-  #tasks-content > *:not(#tasks-date-nav) {
+  #tasks-content > *:not(#tasks-date-nav):not(#tasks-hub) {
     transform: translateY(-100px);
+  }
+  footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--bg-color);
+  }
+  body {
+    padding-bottom: 40px;
   }
 }
 

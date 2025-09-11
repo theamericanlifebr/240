@@ -501,17 +501,6 @@ li:hover { transform: scale(1.02); }
   margin: 10%;
 }
 
-.stats-circle {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  transform: rotate(-90deg);
-  overflow: visible;
-}
-
   @media (min-width: 768px) {
     .stats-display {
       width: 374px;
@@ -525,6 +514,15 @@ li:hover { transform: scale(1.02); }
     text-align: center;
     font-family: 'Open Sans', sans-serif;
     font-weight: 700;
+  }
+
+  .stats-phrase {
+    margin-top: 10px;
+    color: #ccc;
+    text-align: center;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
+    padding: 0 10px;
   }
 
   .barra-avaliacao {
@@ -555,6 +553,21 @@ li:hover { transform: scale(1.02); }
     box-shadow: 0 0 10px var(--barra-cor, #fff), 0 0 20px var(--barra-cor, #fff);
     cursor: pointer;
     border: none;
+  }
+
+  .barra-resultado {
+    width: 90%;
+    height: 20px;
+    margin: 20px auto 0;
+    background: #333;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .barra-resultado .fill {
+    height: 100%;
+    width: 0%;
+    background: var(--barra-cor, #fff);
   }
 
 #task-modal {

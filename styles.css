@@ -145,6 +145,16 @@ body.black .task-form {
   text-shadow: 0 0 5px var(--neon-color);
 }
 
+body.whitecolor .law-box,
+body.whitecolor .mindset-box,
+body.minimalist .law-box,
+body.minimalist .mindset-box {
+  background: var(--button-bg);
+  color: var(--text-color);
+  box-shadow: none;
+  text-shadow: none;
+}
+
 .center {
   display: flex;
   flex-direction: column;
@@ -459,7 +469,8 @@ li:hover { transform: scale(1.02); }
   right: 20px;
   text-align: right;
   font-weight: 700;
-  font-size: 28px;
+  font-size: 17px;
+  color: #fff;
 }
 
 #task-desc {
@@ -910,6 +921,20 @@ li:hover { transform: scale(1.02); }
   .task-item h3 { font-size: 12px; }
   .task-item span { font-size: 14px; }
   .task-form { padding: 14px; max-width: 280px; }
+  #tasks-prev-day,
+  #tasks-next-day { display: none; }
+  #tasks-date-nav {
+    display: block;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  #tasks-current-date {
+    display: block;
+    font-weight: 700;
+  }
+  #tasks-content > *:not(#tasks-date-nav) {
+    transform: translateY(-100px);
+  }
 }
 
 @media (min-width: 601px) {

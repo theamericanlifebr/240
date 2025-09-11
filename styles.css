@@ -658,24 +658,9 @@ li:hover { transform: scale(1.02); }
   color: #fff;
 }
 
-#actions-date {
-  display: none;
-}
-
 @media (max-width: 600px) {
   #task-action-modal {
     flex-direction: column;
-  }
-
-  #actions-date {
-    display: block;
-    color: #fff;
-    margin-bottom: 100px;
-    text-align: center;
-    font-family: 'Open Sans', sans-serif;
-    font-weight: 700;
-    position: relative;
-    top: -100px;
   }
 }
 

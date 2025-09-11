@@ -3,6 +3,7 @@ import { initLaws } from './laws.js';
 import { initMindset, openMindsetModal, suggestMindset } from './mindset.js';
 import { initStats } from './stats.js';
 import { initHistory } from './history.js';
+import { playSound } from './utils.js';
 
 let aspectsData = {};
 let aspectKeys = [];
@@ -129,7 +130,7 @@ const levelMessages = {
 };
 
 
-const statsColors = {
+const baseColors = {
   Emocional: ['#000000', '#ff4d6d'],
   Energia: ['#000000', '#ff8e00'],
   Relacionamentos: ['#000000', '#9d4edd'],
@@ -143,11 +144,21 @@ const statsColors = {
   Estudo: ['#000000', '#00bbf9'],
   Ambiente: ['#000000', '#9400d3']
 };
+let statsColors = JSON.parse(JSON.stringify(baseColors));
+let themeColors = JSON.parse(localStorage.getItem('themeAspectColors') || '{}');
 
-const storedAspectColors = JSON.parse(localStorage.getItem('aspectColors') || '{}');
-Object.keys(storedAspectColors).forEach(k => {
-  statsColors[k] = [storedAspectColors[k], storedAspectColors[k]];
-});
+function updateThemeColors() {
+  const current = themeColors[savedTheme] || {};
+  aspectKeys.forEach(k => {
+    if (savedTheme === 'minimalist') {
+      statsColors[k] = ['#000000', '#000000'];
+    } else if (current[k]) {
+      statsColors[k] = [current[k], current[k]];
+    } else {
+      statsColors[k] = [...baseColors[k]];
+    }
+  });
+}
 
 // Prevent copying, context menu, and zoom interactions
 document.addEventListener('contextmenu', e => e.preventDefault());
@@ -166,6 +177,15 @@ document.addEventListener('keydown', e => {
   }
 });
 
+document.addEventListener('click', e => {
+  if (!e.target.closest('[data-no-click]')) playSound('click');
+});
+document.addEventListener('keydown', e => {
+  if (!e.ctrlKey && !e.metaKey && !e.altKey && e.key.length === 1) {
+    playSound('type');
+  }
+});
+
 const headerLogo = document.getElementById('header-logo');
 const menuCarousel = document.getElementById('menu-carousel');
 
@@ -175,6 +195,7 @@ if (savedTheme === 'turquoise') {
   localStorage.setItem('theme', 'neon');
 }
 savedTheme = savedTheme || 'neon';
+document.body.classList.remove('black', 'turquoise', 'neon', 'whitecolor', 'minimalist');
 document.body.classList.add(savedTheme);
 if (!localStorage.getItem('theme')) localStorage.setItem('theme', 'neon');
 
@@ -254,6 +275,7 @@ function initApp() {
   previousLogin = Number(localStorage.getItem('lastLogin')) || now;
   localStorage.setItem('lastLogin', now);
   responses = JSON.parse(localStorage.getItem('responses') || '{}');
+  updateThemeColors();
   buildOptions();
   initTasks(aspectKeys, tasksData, aspectsData);
   initLaws(aspectKeys, lawsData, statsColors);
@@ -270,10 +292,9 @@ function initApp() {
 
 function applyTheme(theme) {
   if (theme === 'turquoise') theme = 'neon';
-  document.body.classList.remove('black', 'turquoise', 'neon', 'whitecolor', 'minimalist');
-  document.body.classList.add(theme);
   localStorage.setItem('theme', theme);
   savedTheme = theme;
+  location.reload();
 }
 
 function buildOptions() {
@@ -321,23 +342,42 @@ function buildOptions() {
   bgDiv.appendChild(bgInput);
   container.appendChild(bgDiv);
 
-  const aspectColors = JSON.parse(localStorage.getItem('aspectColors') || '{}');
+  const aspectColors = themeColors[savedTheme] || {};
   aspectKeys.forEach(k => {
     const colorWrap = document.createElement('div');
     const colorLabel = document.createElement('label');
     colorLabel.textContent = `${k} cor:`;
     const colorInput = document.createElement('input');
     colorInput.type = 'color';
-    colorInput.value = aspectColors[k] || '#ffffff';
-    colorInput.addEventListener('input', e => {
-      aspectColors[k] = e.target.value;
-      statsColors[k] = [e.target.value, e.target.value];
-      localStorage.setItem('aspectColors', JSON.stringify(aspectColors));
-    });
+    if (savedTheme === 'minimalist') {
+      colorInput.value = '#000000';
+      colorInput.disabled = true;
+    } else {
+      colorInput.value = aspectColors[k] || baseColors[k][1];
+      colorInput.addEventListener('input', e => {
+        if (!themeColors[savedTheme]) themeColors[savedTheme] = {};
+        themeColors[savedTheme][k] = e.target.value;
+        localStorage.setItem('themeAspectColors', JSON.stringify(themeColors));
+        updateThemeColors();
+        location.reload();
+      });
+    }
     colorWrap.appendChild(colorLabel);
     colorWrap.appendChild(colorInput);
     container.appendChild(colorWrap);
   });
+
+  const dataDiv = document.createElement('div');
+  const exportBtn = document.createElement('button');
+  exportBtn.textContent = 'Exportar dados';
+  exportBtn.addEventListener('click', exportData);
+  const importInput = document.createElement('input');
+  importInput.type = 'file';
+  importInput.accept = 'application/json';
+  importInput.addEventListener('change', importData);
+  dataDiv.appendChild(exportBtn);
+  dataDiv.appendChild(importInput);
+  container.appendChild(dataDiv);
 
   const categories = [
     { title: 'Princípios fundamentais', filter: v => v === 10 },
@@ -357,6 +397,47 @@ function buildOptions() {
       container.appendChild(p);
     });
   });
+}
+
+function exportData() {
+  const data = {
+    tasks: JSON.parse(localStorage.getItem('tasks') || '[]'),
+    customLaws: JSON.parse(localStorage.getItem('customLaws') || '[]'),
+    customMindsets: JSON.parse(localStorage.getItem('customMindsets') || '[]'),
+    responses: JSON.parse(localStorage.getItem('responses') || '{}'),
+    themeAspectColors: JSON.parse(localStorage.getItem('themeAspectColors') || '{}'),
+    theme: localStorage.getItem('theme') || 'neon',
+    customBg: localStorage.getItem('customBg') || ''
+  };
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ilife-data.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (data.tasks) localStorage.setItem('tasks', JSON.stringify(data.tasks));
+      if (data.customLaws) localStorage.setItem('customLaws', JSON.stringify(data.customLaws));
+      if (data.customMindsets) localStorage.setItem('customMindsets', JSON.stringify(data.customMindsets));
+      if (data.responses) localStorage.setItem('responses', JSON.stringify(data.responses));
+      if (data.themeAspectColors) localStorage.setItem('themeAspectColors', JSON.stringify(data.themeAspectColors));
+      if (data.theme) localStorage.setItem('theme', data.theme);
+      if (data.customBg) localStorage.setItem('customBg', data.customBg);
+      location.reload();
+    } catch (err) {
+      alert('Arquivo inválido');
+    }
+  };
+  reader.readAsText(file);
 }
 
 function scheduleNotifications() {

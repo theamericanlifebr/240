@@ -1,3 +1,5 @@
+import { playSound } from './utils.js';
+
 let aspectKeys = [];
 let tasksData = [];
 let editingTaskIndex = null;
@@ -160,6 +162,7 @@ function buildTasks() {
     const div = document.createElement('div');
     div.className = 'task-item';
     div.dataset.index = index;
+    div.setAttribute('data-no-click', 'true');
 
     const icon = document.createElement('img');
     icon.className = 'task-aspect-icon';
@@ -183,6 +186,7 @@ function buildTasks() {
       tasks[index].completed = true;
       localStorage.setItem('tasks', JSON.stringify(tasks));
       buildTasks();
+      playSound('taskcomplete');
     });
     let pressTimer;
     const start = () => {
@@ -324,6 +328,7 @@ function suggestTask() {
   localStorage.setItem('tasks', JSON.stringify(tasks));
   buildTasks();
   if (window.buildCalendar) window.buildCalendar();
+  playSound('newtask');
 }
 
 function closeTaskModal() {
@@ -445,9 +450,11 @@ function saveTask() {
     if (editingTaskIndex !== null) tasks[editingTaskIndex] = taskObj; else tasks.push(taskObj);
   }
   localStorage.setItem('tasks', JSON.stringify(tasks));
+  const isNew = editingTaskIndex === null;
   closeTaskModal();
   buildTasks();
   if (window.buildCalendar) window.buildCalendar();
+  if (isNew) playSound('newtask');
 }
 
 function deleteTask() {
@@ -475,6 +482,7 @@ function replaceAllConflicts() {
       tasks.push(pendingTask);
     }
   }
+  const addedNew = pendingTask && pendingTask.editIndex === null;
   localStorage.setItem('tasks', JSON.stringify(tasks));
   conflictModal.classList.add('hidden');
   conflictModal.classList.remove('show');
@@ -482,5 +490,6 @@ function replaceAllConflicts() {
   conflictingIndices = [];
   buildTasks();
   if (window.buildCalendar) window.buildCalendar();
+  if (addedNew) playSound('newtask');
 }
 

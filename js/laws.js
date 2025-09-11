@@ -1,4 +1,4 @@
-import { applyCascade, hexToRgba } from './utils.js';
+import { applyCascade, hexToRgba, playSound } from './utils.js';
 
 let aspectKeys = [];
 let lawsData = [];
@@ -191,6 +191,7 @@ function saveLaw() {
   localStorage.setItem('customLaws', JSON.stringify(laws));
   closeLawModal();
   buildLaws();
+  playSound('newlaw');
 }
 
 function suggestLaw() {
@@ -200,6 +201,7 @@ function suggestLaw() {
   laws.push({ title: idea.title, aspect: idea.aspect, description: idea.description || '' });
   localStorage.setItem('customLaws', JSON.stringify(laws));
   buildLaws();
+  playSound('newlaw');
 }
 
 function openLawActionModal(index) {

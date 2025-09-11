@@ -40,6 +40,15 @@ const cancelActionBtn = document.getElementById('action-cancel');
 const archivedModal = document.getElementById('archived-modal');
 const archivedList = document.getElementById('archived-list');
 const closeArchivedBtn = document.getElementById('close-archived');
+const taskFormDiv = document.getElementById('task-form');
+const taskViewDiv = document.getElementById('task-view');
+const taskViewTitle = document.getElementById('task-view-title');
+const taskViewStatus = document.getElementById('task-view-status');
+const taskViewRemaining = document.getElementById('task-view-remaining');
+const editTaskBtn = document.getElementById('edit-task');
+const deleteTaskViewBtn = document.getElementById('delete-task-view');
+const cancelTaskViewBtn = document.getElementById('cancel-task-view');
+const taskFormTitle = taskFormDiv.querySelector('h2');
 
 const prevDayBtn = document.getElementById('tasks-prev-day');
 const nextDayBtn = document.getElementById('tasks-next-day');
@@ -79,6 +88,55 @@ function formatDuration(mins) {
   }
   return `${mm} minuto${mm !== 1 ? 's' : ''}`;
 }
+
+function formatRemaining(ms) {
+  let txt;
+  if (ms >= 3600000) {
+    const hh = Math.floor(ms / 3600000);
+    const mm = Math.floor((ms % 3600000) / 60000);
+    txt = `${hh.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}h`;
+  } else {
+    const mm = Math.floor(ms / 60000);
+    const ss = Math.floor((ms % 60000) / 1000);
+    txt = `${mm.toString().padStart(2,'0')}:${ss.toString().padStart(2,'0')}m`;
+  }
+  return txt;
+}
+
+function getTaskStatus(t) {
+  const now = Date.now();
+  const time = t.startTime ? new Date(t.startTime).getTime() : null;
+  const end = time ? time + (t.duration || 0) * 60000 : null;
+  if (t.substituted) return { cls: 'overdue', txt: 'Substituída', time };
+  if (t.completed) return { cls: 'completed', txt: 'Concluída', time };
+  if (t.paused) return { cls: 'paused', txt: 'Pausada', time };
+  if (time && end && now >= time && now < end) return { cls: 'in-progress', txt: 'Em andamento', time };
+  if (time && end && now >= end) return { cls: 'overdue', txt: 'Atrasada', time };
+  return { cls: 'pending', txt: 'Pendente', time };
+}
+
+const statusColors = {
+  pending: '#00bfff',
+  overdue: '#ff073a',
+  completed: '#39ff14',
+  'in-progress': '#00008b',
+  paused: '#555',
+  desisted: '#444',
+};
+
+function applyStatusColor(cls) {
+  const color = statusColors[cls];
+  if (!color) return;
+  taskFormDiv.style.background = `linear-gradient(135deg, #000, ${color})`;
+  taskFormDiv.style.boxShadow = `0 0 10px ${color}`;
+  taskViewDiv.style.background = `linear-gradient(135deg, #000, ${color})`;
+  taskViewDiv.style.boxShadow = `0 0 10px ${color}`;
+}
+
+function enableTaskEditing() {
+  taskViewDiv.classList.add('hidden');
+  taskFormDiv.classList.remove('hidden');
+}
 export function initTasks(keys, data, aspects) {
   aspectKeys = keys;
   tasksData = data;
@@ -95,6 +153,9 @@ export function initTasks(keys, data, aspects) {
   saveTaskBtn.addEventListener('click', saveTask);
   cancelTaskBtn.addEventListener('click', closeTaskModal);
   deleteTaskBtn.addEventListener('click', deleteTask);
+  editTaskBtn.addEventListener('click', enableTaskEditing);
+  deleteTaskViewBtn.addEventListener('click', deleteTask);
+  cancelTaskViewBtn.addEventListener('click', closeTaskModal);
   taskNoTimeInput.addEventListener('change', () => {
     taskTimeInput.disabled = taskNoTimeInput.value !== '';
   });
@@ -320,11 +381,29 @@ export function openTaskModal(index = null, prefill = null) {
     taskAspectInput.value = t.aspect;
     taskNoTimeInput.value = t.noTime || '';
     taskDurationInput.value = t.duration || 15;
-    document.querySelector('#task-modal h2').textContent = 'Editar tarefa';
+    taskFormTitle.textContent = 'Editar tarefa';
     deleteTaskBtn.classList.remove('hidden');
+    const info = getTaskStatus(t);
+    taskViewTitle.textContent = t.title;
+    taskViewStatus.textContent = `Status: ${info.txt}`;
+    if (info.time && info.time > Date.now()) {
+      taskViewRemaining.textContent = `Tempo restante: ${formatRemaining(info.time - Date.now())}`;
+      taskViewRemaining.classList.remove('hidden');
+    } else {
+      taskViewRemaining.classList.add('hidden');
+    }
+    applyStatusColor(info.cls);
+    taskViewDiv.classList.remove('hidden');
+    taskFormDiv.classList.add('hidden');
   } else {
-    document.querySelector('#task-modal h2').textContent = 'Nova tarefa';
+    taskFormTitle.textContent = 'Nova tarefa';
     deleteTaskBtn.classList.add('hidden');
+    taskViewDiv.classList.add('hidden');
+    taskFormDiv.classList.remove('hidden');
+    taskFormDiv.style.background = '';
+    taskFormDiv.style.boxShadow = '';
+    taskViewDiv.style.background = '';
+    taskViewDiv.style.boxShadow = '';
     if (prefill) {
       taskTitleInput.value = prefill.title;
       taskAspectInput.value = prefill.aspect;
@@ -371,6 +450,12 @@ function closeTaskModal() {
   taskModal.classList.remove('show');
   taskModal.classList.add('hidden');
   editingTaskIndex = null;
+  taskViewDiv.classList.add('hidden');
+  taskFormDiv.classList.remove('hidden');
+  taskFormDiv.style.background = '';
+  taskFormDiv.style.boxShadow = '';
+  taskViewDiv.style.background = '';
+  taskViewDiv.style.boxShadow = '';
 }
 
 function showConflicts(conflicts) {

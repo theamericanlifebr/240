@@ -296,6 +296,13 @@ function updateTasksDateLabel() {
   const parts = currentTasksDate.toLocaleDateString('pt-BR', options).split(' ');
   const month = parts[2] ? parts[2].charAt(0).toUpperCase() + parts[2].slice(1) : '';
   const dateStr = `${parts[0]} de ${month} de ${parts[4]}`;
+  const dateNav = document.getElementById('tasks-date-nav');
+  if (dateNav && currentDateSpan && currentDateSpan.parentElement !== dateNav) {
+    if (nextDayBtn && dateNav.contains(nextDayBtn)) dateNav.insertBefore(currentDateSpan, nextDayBtn);
+    else dateNav.appendChild(currentDateSpan);
+  }
+  const pendingHeader = document.querySelector('#tasks-pending h2');
+  if (pendingHeader) pendingHeader.textContent = 'Tarefas agendadas';
   currentDateSpan.textContent = dateStr;
   const footer = document.getElementById('footer-date');
   if (footer) footer.innerHTML = `<strong>${dateStr}</strong>`;

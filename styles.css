@@ -109,6 +109,11 @@ footer {
 
 #footer-date {
   font-weight: 700;
+  display: none;
+}
+
+#tasks-current-date {
+  display: none;
 }
 
 #tasks-date-nav {
@@ -944,8 +949,7 @@ li:hover { transform: scale(1.02); }
     margin-bottom: 20px;
   }
   #tasks-current-date {
-    display: block;
-    font-weight: 700;
+    display: none;
   }
   #tasks-content > *:not(#tasks-date-nav):not(#tasks-hub) {
     transform: translateY(-100px);

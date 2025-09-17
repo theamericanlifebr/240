@@ -46,6 +46,31 @@ const nextDayBtn = document.getElementById('tasks-next-day');
 const currentDateSpan = document.getElementById('tasks-current-date');
 let currentTasksDate = new Date();
 
+const WEEKDAY_NAMES = [
+  'Domingo',
+  'Segunda-feira',
+  'Terça-feira',
+  'Quarta-feira',
+  'Quinta-feira',
+  'Sexta-feira',
+  'Sábado'
+];
+
+function getFutureWeekdayName(offset) {
+  const date = new Date();
+  date.setDate(date.getDate() + offset);
+  return WEEKDAY_NAMES[date.getDay()];
+}
+
+function updateWeekdayOptionLabels() {
+  const offsets = { weekday2: 2, weekday3: 3, weekday4: 4 };
+  Array.from(taskDateOption.options).forEach(opt => {
+    if (offsets[opt.value] !== undefined) {
+      opt.textContent = getFutureWeekdayName(offsets[opt.value]);
+    }
+  });
+}
+
 function showTaskStep(step) {
   currentTaskStep = step;
   step1Div.classList.add('hidden');
@@ -83,6 +108,7 @@ export function initTasks(keys, data, aspects) {
   aspectKeys = keys;
   tasksData = data;
   aspectsMap = aspects;
+  updateWeekdayOptionLabels();
   addTaskBtn.addEventListener('click', () => openTaskModal());
   suggestTaskBtn.addEventListener('click', suggestTask);
   archivedBtn.addEventListener('click', openArchivedModal);
@@ -280,9 +306,6 @@ function buildTasks() {
       pending.appendChild(div);
     }
   });
-  if (!pending.children.length && !inProgress.children.length && !completed.children.length && !overdue.children.length && !substituted.children.length && !paused.children.length) {
-    pending.textContent = 'Sem tarefas para hoje';
-  }
 }
 
 function changeTasksDate(delta) {
@@ -305,6 +328,7 @@ function updateTasksDateLabel() {
 }
 
 export function openTaskModal(index = null, prefill = null) {
+  updateWeekdayOptionLabels();
   editingTaskIndex = index;
   taskAspectInput.innerHTML = '';
   aspectKeys.forEach(k => {

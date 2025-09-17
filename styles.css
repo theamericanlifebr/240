@@ -495,8 +495,49 @@ li:hover { transform: scale(1.02); }
   margin: 5px 0;
 }
 
+#tasks {
+  padding-bottom: 140px;
+}
+
 #tasks-hub {
-  margin-bottom: 20px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  padding: 14px 32px;
+  background: var(--bg-color);
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.35);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+}
+
+body.whitecolor #tasks-hub,
+body.minimalist #tasks-hub {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.12);
+}
+
+#tasks-hub button {
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: var(--text-color);
+}
+
+#tasks-hub button:hover {
+  transform: translateY(-3px);
+}
+
+#tasks-hub button:active {
+  transform: scale(0.95);
 }
 
 .task-group {
@@ -936,6 +977,24 @@ li:hover { transform: scale(1.02); }
   .menu-grid { display: none; }
   .menu-carousel { display: flex; }
   #menu { display: none; }
+  body.minimalist .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    justify-items: center;
+    width: 100%;
+    padding: 20px 24px 100px;
+  }
+  body.minimalist .menu-item img {
+    width: 120px;
+    height: 120px;
+  }
+  body.minimalist #menu.active {
+    display: block;
+  }
+  body.minimalist .menu-carousel {
+    display: none;
+  }
   .page { padding: 90px 30px 15px; }
   .page > h1 { display: none; }
   .task-item h3 { font-size: 12px; }
@@ -954,15 +1013,17 @@ li:hover { transform: scale(1.02); }
   #tasks-content > *:not(#tasks-date-nav):not(#tasks-hub) {
     transform: translateY(-100px);
   }
-  footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: var(--bg-color);
+  #tasks-hub {
+    padding: 12px 20px;
+    gap: 18px;
   }
-  body {
-    padding-bottom: 40px;
+  #tasks-hub button {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+  #tasks {
+    padding-bottom: 120px;
   }
 }
 

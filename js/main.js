@@ -286,7 +286,11 @@ function initApp() {
   document.getElementById('main-header').classList.remove('hidden');
   document.getElementById('main-content').classList.remove('hidden');
   if (window.innerWidth <= 600) {
-    initCarousel();
+    if (savedTheme === 'minimalist') {
+      showPage('menu');
+    } else {
+      initCarousel();
+    }
   }
 }
 

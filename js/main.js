@@ -160,6 +160,13 @@ function updateThemeColors() {
   });
 }
 
+function syncAccentColor() {
+  const themeSet = themeColors[savedTheme] || {};
+  const fallback = Object.values(baseColors)[0]?.[1] || '#00ff7f';
+  const chosen = Object.values(themeSet)[0] || fallback;
+  document.documentElement.style.setProperty('--accent-neon', chosen);
+}
+
 // Prevent copying, context menu, and zoom interactions
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('copy', e => e.preventDefault());
@@ -276,6 +283,7 @@ function initApp() {
   localStorage.setItem('lastLogin', now);
   responses = JSON.parse(localStorage.getItem('responses') || '{}');
   updateThemeColors();
+  syncAccentColor();
   buildOptions();
   initTasks(aspectKeys, tasksData, aspectsData);
   initLaws(aspectKeys, lawsData, statsColors);

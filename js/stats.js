@@ -222,24 +222,41 @@ function buildStats() {
   barraAvaliacao.max = '100';
   container.appendChild(barraAvaliacao);
 
+  const loader = document.createElement('div');
+  loader.className = 'loader stats-loader';
+  const loadingText = document.createElement('div');
+  loadingText.className = 'loading-text';
+  loadingText.innerHTML = 'Nível<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>';
+  const loadingBg = document.createElement('div');
+  loadingBg.className = 'loading-bar-background';
   const barraResultado = document.createElement('div');
-  barraResultado.className = 'barra-resultado';
-  const barraFill = document.createElement('div');
-  barraFill.className = 'fill';
-  barraResultado.appendChild(barraFill);
-  container.appendChild(barraResultado);
+  barraResultado.className = 'loading-bar';
+  const whiteBars = document.createElement('div');
+  whiteBars.className = 'white-bars-container';
+  for (let i = 0; i < 10; i++) {
+    const w = document.createElement('div');
+    w.className = 'white-bar';
+    whiteBars.appendChild(w);
+  }
+  barraResultado.appendChild(whiteBars);
+  loadingBg.appendChild(barraResultado);
+  loader.appendChild(loadingText);
+  loader.appendChild(loadingBg);
+  container.appendChild(loader);
 
   function updateSlider(level) {
     const color = getColor(level);
     barraAvaliacao.style.setProperty('--barra-cor', color);
-    barraAvaliacao.style.background = `linear-gradient(to right, ${color} 0%, ${color} ${level}%, #333 ${level}%)`;
+    barraAvaliacao.style.background = `linear-gradient(90deg, ${color} ${level}%, rgba(255,255,255,0.08) ${level}%)`;
+    loadingText.innerHTML = `Ajuste: ${level}%<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>`;
   }
 
   function updateResult(level) {
     const color = getColor(level);
     barraResultado.style.setProperty('--barra-cor', color);
-    barraFill.style.background = color;
-    barraFill.style.width = `${level}%`;
+    barraResultado.style.width = `${level}%`;
+    loadingText.innerHTML = `Nível ${level}%<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>`;
+    loadingBg.style.boxShadow = `#0c0c0c -2px 2px 4px 0px inset, 0 0 18px ${color}`;
   }
 
   function render() {
@@ -255,13 +272,15 @@ function buildStats() {
 
     function enableRating(level) {
       barraAvaliacao.style.display = 'block';
-      barraResultado.style.display = 'none';
+      loader.classList.add('editing');
       barraAvaliacao.value = String(level);
       updateSlider(level);
+      updateResult(level);
       phraseEl.textContent = getPhrase(key, level);
       barraAvaliacao.oninput = () => {
         const val = parseInt(barraAvaliacao.value, 10);
         updateSlider(val);
+        updateResult(val);
         phraseEl.textContent = getPhrase(key, val);
       };
       barraAvaliacao.onchange = () => {
@@ -269,9 +288,9 @@ function buildStats() {
         responses[key] = { ...(responses[key] || {}), level: val };
         localStorage.setItem('responses', JSON.stringify(responses));
         barraAvaliacao.style.display = 'none';
+        loader.classList.remove('editing');
         updateResult(val);
         phraseEl.textContent = getPhrase(key, val);
-        barraResultado.style.display = 'block';
       };
     }
 
@@ -279,7 +298,7 @@ function buildStats() {
       updateResult(storedLevel);
       phraseEl.textContent = getPhrase(key, storedLevel);
       barraAvaliacao.style.display = 'none';
-      barraResultado.style.display = 'block';
+      loader.classList.remove('editing');
     } else {
       enableRating(50);
     }

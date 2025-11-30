@@ -41,9 +41,8 @@ function buildMindset() {
     div.className = 'mindset-box';
     const colors = statsColors[m.aspect] || ['#555', '#777'];
     const neon = colors[1];
-    div.style.backgroundColor = hexToRgba(neon, 0.3);
-    div.style.border = `7px solid ${neon}`;
-    div.style.boxShadow = `0 0 10px ${neon}, 0 0 20px ${neon}`;
+    div.style.setProperty('--accent-color', neon);
+    div.style.setProperty('--accent-soft', hexToRgba(neon, 0.25));
     const h3 = document.createElement('h3');
     h3.textContent = m.title;
     const p = document.createElement('p');

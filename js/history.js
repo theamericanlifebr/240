@@ -133,10 +133,27 @@ function openNote(key) {
   const notes = JSON.parse(localStorage.getItem('notes') || '{}');
   currentNoteKey = key;
   noteListDiv.innerHTML = '';
-  (notes[key] || []).forEach(n => {
-    const p = document.createElement('p');
-    p.textContent = n;
-    noteListDiv.appendChild(p);
+  (notes[key] || []).forEach((n, idx) => {
+    const card = document.createElement('div');
+    card.className = 'comment-card';
+
+    const status = document.createElement('div');
+    status.className = 'comment-status';
+
+    const body = document.createElement('div');
+    body.className = 'comment-body';
+    const text = document.createElement('p');
+    text.className = 'comment-text';
+    text.textContent = n;
+    const time = document.createElement('p');
+    time.className = 'comment-time';
+    time.textContent = `Comentário ${idx + 1}`;
+    body.appendChild(text);
+    body.appendChild(time);
+
+    card.appendChild(status);
+    card.appendChild(body);
+    noteListDiv.appendChild(card);
   });
   noteText.value = '';
   noteModal.classList.add('show');

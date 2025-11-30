@@ -114,9 +114,8 @@ function buildLaws() {
     div.className = 'law-box';
     const colors = statsColors[l.aspect] || ['#555', '#777'];
     const neon = colors[1];
-    div.style.backgroundColor = hexToRgba(neon, 0.3);
-    div.style.border = `3px solid ${neon}`;
-    div.style.boxShadow = `0 0 10px ${neon}, 0 0 20px ${neon}`;
+    div.style.setProperty('--accent-color', neon);
+    div.style.setProperty('--accent-soft', hexToRgba(neon, 0.25));
     const h3 = document.createElement('h3');
     h3.style.textAlign = 'center';
     h3.style.whiteSpace = 'pre-line';

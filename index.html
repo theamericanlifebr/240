@@ -224,12 +224,16 @@
   </div>
 
   <div id="note-modal" class="hidden">
-    <div class="task-form">
+    <div class="task-form feedback-card">
       <h2>Anotações</h2>
-      <div id="note-list" style="max-height:200px;overflow-y:auto;"></div>
-      <textarea id="note-text" maxlength="2000" placeholder="Digite uma anotação"></textarea>
-      <button id="note-save">Salvar</button>
-      <button id="note-close">Fechar</button>
+      <div id="note-list" class="comment-list"></div>
+      <div class="feedback-input-area">
+        <textarea id="note-text" maxlength="2000" placeholder="Digite uma anotação"></textarea>
+        <div class="feedback-actions">
+          <button id="note-save" class="primary-cta">Salvar</button>
+          <button id="note-close" class="secondary-cta">Fechar</button>
+        </div>
+      </div>
     </div>
   </div>
 
